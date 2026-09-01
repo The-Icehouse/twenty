@@ -16,7 +16,7 @@ case "${1:-up}" in
     "${COMPOSE[@]}" up -d --remove-orphans
     for i in $(seq 1 90); do
       if curl -sf -m 3 http://localhost:3001/healthz >/dev/null 2>&1; then
-        echo "==> healthy after ~$((i*3))s → http://localhost:3001  (prefilled dev login: tim@apple.dev / Applecar2025)"; exit 0; fi
+        echo "==> healthy after ~$((i*3))s → http://localhost:3001  (fresh DB: sign up as preview@example.invalid with any password, then skip the onboarding steps)"; exit 0; fi
       sleep 3
     done
     echo "!! never became healthy; last server log lines:"; "${COMPOSE[@]}" logs --tail 40 server; exit 1 ;;

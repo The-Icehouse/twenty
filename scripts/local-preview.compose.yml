@@ -11,7 +11,6 @@ services:
       APP_SECRET: ${PREVIEW_APP_SECRET}
       STORAGE_TYPE: local
       EMAIL_DRIVER: logger            # never sends mail
-      SIGN_IN_PREFILLED: "true"       # upstream's seeded dev workspace (tim@apple.dev) — local only, no mail leaves
       IS_SIGN_UP_DISABLED: "false"
     depends_on:
       db: { condition: service_healthy }

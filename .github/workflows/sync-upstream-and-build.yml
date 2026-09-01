@@ -143,6 +143,7 @@ jobs:
             test -f /app/packages/twenty-server/dist/main.js
             test -f /app/packages/twenty-server/dist/front/index.html
             grep -q -- "--t-accent-primary" /app/packages/twenty-server/dist/front/assets/*.css
+            grep -qi "ff7a59" /app/packages/twenty-server/dist/front/assets/*.css   # HubSpot Lorax actually compiled in
             test -f /app/packages/twenty-server/dist/front/fonts/lexend-deca/lexend-deca-latin-400-normal.woff2
             echo "image layout OK; theme vars and Lexend Deca present"'
 

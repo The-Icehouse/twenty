@@ -47,12 +47,17 @@ jobs:
         run: |
           set -euo pipefail
           git remote add upstream https://github.com/twentyhq/twenty.git
-          git fetch --quiet upstream 'refs/tags/twenty/v*:refs/tags/twenty/v*'
           if [ -n "${{ github.event.inputs.upstream_tag }}" ]; then
             TAG="${{ github.event.inputs.upstream_tag }}"
           else
-            TAG=$(git tag -l 'twenty/v*' | grep -E '^twenty/v[0-9]+\.[0-9]+\.[0-9]+$' | sort -t/ -k2 -V | tail -1)
+            # ls-remote finds the newest release tag WITHOUT fetching any history —
+            # fetching every twenty/v* tag into a shallow clone drags in years of commits
+            TAG=$(git ls-remote --tags --refs upstream 'twenty/v*' | awk '{print $2}' | sed 's#refs/tags/##' \
+                  | grep -E '^twenty/v[0-9]+\.[0-9]+\.[0-9]+$' | sort -t/ -k2 -V | tail -1)
           fi
+          [ -n "$TAG" ] || { echo "::error::could not resolve an upstream release tag"; exit 1; }
+          # fetch ONLY that tag, shallow — it is the rebase target and all we need
+          git fetch --quiet --depth 1 upstream "refs/tags/$TAG:refs/tags/$TAG"
           BASE=$(cat BASE_TAG 2>/dev/null || echo "")
           echo "target=$TAG"  >> "$GITHUB_OUTPUT"
           echo "base=$BASE"   >> "$GITHUB_OUTPUT"
@@ -67,7 +72,7 @@ jobs:
           TAG='${{ steps.tag.outputs.target }}'; BASE='${{ steps.tag.outputs.base }}'
           if [ "$BASE" = "$TAG" ]; then echo "already based on $TAG"; echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0; fi
           [ -n "$BASE" ] || { echo "::error::BASE_TAG file missing on icehouse branch"; exit 1; }
-          git fetch --quiet upstream "refs/tags/$BASE:refs/tags/$BASE"
+          git fetch --quiet --depth 1 upstream "refs/tags/$BASE:refs/tags/$BASE"
           if ! git rebase --onto "$TAG" "$BASE" icehouse; then
             CONFLICTS=$(git diff --name-only --diff-filter=U | tr '\n' ' ')
             git rebase --abort || true

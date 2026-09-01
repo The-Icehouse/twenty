@@ -90,14 +90,24 @@ jobs:
           test -s packages/twenty-ui/src/theme-constants/theme-dark.css
           grep -q -- '--t-accent-primary' packages/twenty-ui/src/theme-constants/theme-light.css
 
-      - name: Push rebased icehouse + fast-forward main mirror
+      - name: Push rebased icehouse
         if: steps.rebase.outputs.changed == 'true'
         run: |
           set -euo pipefail
           TAG='${{ steps.tag.outputs.target }}'
           git push --force-with-lease origin icehouse
-          # main is a pure mirror: fast-forward to the tag, never anything else, never forced
-          git push origin "refs/tags/$TAG:refs/heads/main"
+
+      - name: Mirror upstream (main follows upstream main; release tag copied as a tag)
+        if: steps.rebase.outputs.changed == 'true'
+        continue-on-error: true   # cosmetic — a mirror hiccup must never block a themed build
+        run: |
+          set -euo pipefail
+          TAG='${{ steps.tag.outputs.target }}'
+          # release tags are cut from release branches, so tag -> main is NOT a fast-forward.
+          # main mirrors upstream main instead (always ff); the tag itself is mirrored as a tag.
+          git fetch --quiet --depth 1 upstream main
+          git push origin "FETCH_HEAD:refs/heads/main" || echo "::warning::main mirror not fast-forward; left untouched"
+          git push origin "refs/tags/$TAG" || echo "::warning::tag $TAG already present or refused"
 
       - name: Free runner disk (upstream does the same)
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL && df -h / | tail -1

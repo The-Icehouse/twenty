@@ -118,6 +118,7 @@ export const NavigationDrawer = ({
       <StyledAnimatedContainer
         className={className}
         data-click-outside-id={NAVIGATION_DRAWER_CLICK_OUTSIDE_ID}
+        data-icehouse="nav-drawer"
         isExpanded={isExpanded}
         isResizing={isResizing}
       >

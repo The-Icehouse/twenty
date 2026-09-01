@@ -1,0 +1,91 @@
+/* Icehouse fork — HubSpot look, layered on Twenty's token theme.
+   Everything here is scoped to stable hooks (data-icehouse="…", data-testid, ids, non-hashed classes).
+   Emotion's hashed class names change every build and are never targeted. Light mode only unless noted. */
+
+/* ───────────── App shell: HubSpot's navy left navigation ───────────── */
+.light [data-icehouse="nav-drawer"] {
+  background: #2d3e50;
+  color: #dfe3eb;
+  scrollbar-color: #516f90 transparent;
+}
+.light [data-icehouse="nav-drawer"] .navigation-drawer-item {
+  color: #dfe3eb;
+  background: transparent;
+  border-radius: 3px;
+}
+.light [data-icehouse="nav-drawer"] .navigation-drawer-item:hover {
+  background: #425b76;
+  color: #f5f8fa;
+}
+.light [data-icehouse="nav-drawer"] .navigation-drawer-item[aria-current="page"] {
+  background: #516f90;
+  color: #ffffff;
+}
+/* Tabler icons take their colour as a stroke attribute; CSS wins over attributes */
+.light [data-icehouse="nav-drawer"] svg {
+  stroke: currentColor !important;
+  color: inherit;
+}
+.light [data-icehouse="nav-drawer"] .nav-item-icon-tile {
+  background-color: #425b76;
+}
+.light [data-icehouse="nav-drawer"] .navigation-drawer-item[aria-current="page"] .nav-item-icon-tile {
+  background-color: #7c98b6;
+}
+/* section titles, secondary labels, shortcut hints, workspace switcher */
+.light [data-icehouse="nav-drawer"] .section-title-container,
+.light [data-icehouse="nav-drawer"] .section-title-container * {
+  color: #99acc2;
+}
+.light [data-icehouse="nav-drawer"] .keyboard-shortcuts {
+  color: #99acc2;
+  background: rgba(255, 255, 255, 0.08);
+}
+.light [data-icehouse="nav-drawer"] [data-testid="workspace-dropdown"],
+.light [data-icehouse="nav-drawer"] [data-testid="workspace-dropdown"] * {
+  color: #ffffff;
+}
+.light [data-icehouse="nav-drawer"] input {
+  background: #425b76;
+  color: #ffffff;
+  border-color: #516f90;
+}
+.light [data-icehouse="nav-drawer"] input::placeholder {
+  color: #99acc2;
+}
+
+/* ───────────── Record tables: HubSpot density and link styling ───────────── */
+.light [id^="record-table-"] [data-testid="chip"] {
+  color: #0091ae;
+  font-weight: 600;
+}
+.light [id^="record-table-"] [data-testid="chip"]:hover {
+  text-decoration: underline;
+}
+.light [data-icehouse="table-header-cell"] {
+  color: #516f90;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ───────────── Record page: HubSpot's card look ───────────── */
+.light [data-testid="record-fields-widget"] {
+  background: #ffffff;
+  border: 1px solid #cbd6e2;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px 0 rgba(66, 91, 117, 0.06);
+}
+.light [data-testid^="tab-"] {
+  color: #516f90;
+  font-size: 14px;
+}
+.light [data-testid^="tab-"][data-active] {
+  color: #33475b;
+  box-shadow: inset 0 -3px 0 #0091ae;
+}
+.light [data-icehouse="timeline-item"] {
+  background: #ffffff;
+  border: 1px solid #cbd6e2;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px 0 rgba(66, 91, 117, 0.06);
+}

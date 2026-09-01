@@ -360,7 +360,7 @@ export const NavigationDrawerItem = ({
               </StyledIcon>
             ) : withIconBackground ? (
               <StyledIcon>
-                <StyledIconBackgroundTile>
+                <StyledIconBackgroundTile className="nav-item-icon-tile">
                   <Icon
                     size={theme.icon.size.md}
                     stroke={theme.icon.stroke.md}

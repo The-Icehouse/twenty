@@ -40,7 +40,7 @@ const StyledCardInnerContainer = styled.div`
 export const EventCard = ({ children, isOpen }: EventCardProps) => {
   return (
     isOpen && (
-      <StyledCardContainer>
+      <StyledCardContainer data-icehouse="timeline-item">
         <StyledCardInnerContainer>{children}</StyledCardInnerContainer>
       </StyledCardContainer>
     )

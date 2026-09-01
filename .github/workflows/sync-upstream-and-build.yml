@@ -178,6 +178,31 @@ jobs:
             echo '```'; echo "scripts/deploy-to-vm.sh $D"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
           echo "TWENTY_IMAGE=${{ env.IMAGE }}@$D"
 
+      - name: Record the build as a GitHub Release (a human-readable ledger; the registry is the artefact)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAGSAFE='${{ steps.tag.outputs.target }}'; TAGSAFE="${TAGSAFE#twenty/}"
+          D='${{ steps.build.outputs.digest }}'
+          STAMP=$(TZ=Pacific/Auckland date +%Y%m%d-%H%M)
+          NAME="build-${TAGSAFE}-${STAMP}"
+          {
+            echo "Upstream: \`${{ steps.tag.outputs.target }}\`  ·  fork commit: \`${GITHUB_SHA::8}\`"
+            echo
+            echo "Image (pull by digest, never by tag):"
+            echo '```'
+            echo "ghcr.io/the-icehouse/twenty@$D"
+            echo '```'
+            echo "Deploy from the desktop, under the VM lock:"
+            echo '```'
+            echo "scripts/deploy-to-vm.sh $D"
+            echo "scripts/deploy-to-vm.sh --rollback"
+            echo '```'
+            echo "Built by run ${{ github.run_id }}. The job never deploys."
+          } > /tmp/notes.md
+          gh release create "$NAME" --target "$GITHUB_SHA" --title "Icehouse build $TAGSAFE ($(TZ=Pacific/Auckland date +%Y-%m-%d))" --notes-file /tmp/notes.md --latest
+
       - name: Notify (optional — only if a webhook is configured)
         if: always() && env.WEBHOOK_URL != ''
         env:

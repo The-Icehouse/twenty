@@ -32,7 +32,8 @@ for (const mode of ['light', 'dark']) {
   const original = css;
   for (const [key, value] of Object.entries(mapping[mode] ?? {})) {
     // match "  --t-foo: <anything>;" exactly once, preserving indentation
-    const re = new RegExp(`^(\\s*${key.replace(/[-]/g, '\\-')}:\\s*)([^;]+)(;)`, 'm');
+    // value = everything up to the line's final ';' — data URLs contain ';' (url(data:image/png;base64,…))
+    const re = new RegExp(`^(\\s*${key.replace(/[-]/g, '\\-')}:\\s*)(.+?)(;\\s*)$`, 'm');
     if (!re.test(css)) { missing.push(`${mode}:${key}`); continue; }
     const before = css.match(re)[2].trim();
     if (before === value) continue;

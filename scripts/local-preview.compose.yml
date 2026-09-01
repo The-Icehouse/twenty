@@ -1,0 +1,51 @@
+# Throwaway local preview of a built fork image. Nothing here touches the VM or real data.
+# Driven by scripts/local-preview.sh — do not run directly.
+services:
+  server:
+    image: ${PREVIEW_IMAGE}
+    ports: ["127.0.0.1:3001:3000"]
+    environment:
+      SERVER_URL: http://localhost:3001
+      PG_DATABASE_URL: postgres://postgres:postgres@db:5432/default
+      REDIS_URL: redis://redis:6379
+      APP_SECRET: ${PREVIEW_APP_SECRET}
+      STORAGE_TYPE: local
+      EMAIL_DRIVER: logger            # never sends mail
+      SIGN_IN_PREFILLED: "true"       # upstream's seeded dev workspace (tim@apple.dev) — local only, no mail leaves
+      IS_SIGN_UP_DISABLED: "false"
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:3000/healthz"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+  worker:
+    image: ${PREVIEW_IMAGE}
+    command: ["yarn", "worker:prod"]
+    environment:
+      PG_DATABASE_URL: postgres://postgres:postgres@db:5432/default
+      SERVER_URL: http://localhost:3001
+      REDIS_URL: redis://redis:6379
+      APP_SECRET: ${PREVIEW_APP_SECRET}
+      STORAGE_TYPE: local
+      EMAIL_DRIVER: logger
+      DISABLE_DB_MIGRATIONS: "true"
+    depends_on:
+      server: { condition: service_healthy }
+  db:
+    image: postgres:16
+    environment: { POSTGRES_USER: postgres, POSTGRES_PASSWORD: postgres, POSTGRES_DB: default }
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -h localhost"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  redis:
+    image: redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 30

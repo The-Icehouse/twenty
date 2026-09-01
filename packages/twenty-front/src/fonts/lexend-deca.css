@@ -1,0 +1,7 @@
+/* Lexend Deca — HubSpot's product typeface. Self-hosted (SIL OFL 1.1) rather than a
+   fontsource dependency so the fork adds no yarn.lock churn and no package age-gate risk.
+   Files: public/fonts/lexend-deca/. Weights mirror the Inter weights Twenty loads. */
+@font-face { font-family: 'Lexend Deca'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/lexend-deca/lexend-deca-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Lexend Deca'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/lexend-deca/lexend-deca-latin-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Lexend Deca'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/lexend-deca/lexend-deca-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Lexend Deca'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/lexend-deca/lexend-deca-latin-700-normal.woff2') format('woff2'); }

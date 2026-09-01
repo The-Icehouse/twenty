@@ -1,0 +1,147 @@
+# Keep the Icehouse theme fork current with upstream Twenty, and build its image.
+#
+# Branches:  main      = untouched mirror of upstream (fast-forwarded to each release tag)
+#            icehouse  = upstream release tag + a handful of theme commits (rebased weekly)
+# Image:     ghcr.io/the-icehouse/twenty  (public package; the VM pulls anonymously by digest)
+#
+# This workflow NEVER deploys. Deploy is a deliberate step: scripts/deploy-to-vm.sh <digest>.
+# On a rebase conflict it aborts, publishes nothing, and fails loudly — a half-applied theme
+# on top of a new upstream must never become an image.
+name: sync-upstream-and-build
+
+on:
+  schedule:
+    - cron: '0 15 * * 6'          # Sat 15:00 UTC = Sun 03:00 NZST
+  workflow_dispatch:
+    inputs:
+      upstream_tag:
+        description: 'Upstream tag to rebase onto (default: newest twenty/vX.Y.Z)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: sync-and-build
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/the-icehouse/twenty
+
+jobs:
+  sync-and-build:
+    runs-on: ubuntu-latest          # public repo => 4 vCPU / 16 GB, the class upstream builds on
+    timeout-minutes: 60
+    steps:
+      - name: Checkout icehouse branch (recent history only)
+        uses: actions/checkout@v4
+        with:
+          ref: icehouse
+          fetch-depth: 100
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resolve target upstream tag
+        id: tag
+        run: |
+          set -euo pipefail
+          git remote add upstream https://github.com/twentyhq/twenty.git
+          git fetch --quiet upstream 'refs/tags/twenty/v*:refs/tags/twenty/v*'
+          if [ -n "${{ github.event.inputs.upstream_tag }}" ]; then
+            TAG="${{ github.event.inputs.upstream_tag }}"
+          else
+            TAG=$(git tag -l 'twenty/v*' | grep -E '^twenty/v[0-9]+\.[0-9]+\.[0-9]+$' | sort -t/ -k2 -V | tail -1)
+          fi
+          BASE=$(cat BASE_TAG 2>/dev/null || echo "")
+          echo "target=$TAG"  >> "$GITHUB_OUTPUT"
+          echo "base=$BASE"   >> "$GITHUB_OUTPUT"
+          echo "Rebasing icehouse from '$BASE' onto '$TAG'"
+
+      - name: Rebase icehouse onto the upstream tag (abort + fail on conflict)
+        id: rebase
+        run: |
+          set -euo pipefail
+          git config user.name  "icehouse-sync[bot]"
+          git config user.email "icehouse-sync@users.noreply.github.com"
+          TAG='${{ steps.tag.outputs.target }}'; BASE='${{ steps.tag.outputs.base }}'
+          if [ "$BASE" = "$TAG" ]; then echo "already based on $TAG"; echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+          [ -n "$BASE" ] || { echo "::error::BASE_TAG file missing on icehouse branch"; exit 1; }
+          git fetch --quiet upstream "refs/tags/$BASE:refs/tags/$BASE"
+          if ! git rebase --onto "$TAG" "$BASE" icehouse; then
+            git rebase --abort || true
+            echo "::error::Rebase of icehouse onto $TAG hit conflicts. Nothing published. Resolve by hand: git rebase --onto $TAG $BASE icehouse"
+            exit 1
+          fi
+          echo "$TAG" > BASE_TAG
+          git add BASE_TAG && git commit -q -m "chore: rebase icehouse onto $TAG"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Sanity — theme files still present after rebase
+        run: |
+          set -e
+          test -s packages/twenty-ui/src/theme-constants/theme-light.css
+          test -s packages/twenty-ui/src/theme-constants/theme-dark.css
+          grep -q -- '--t-accent-primary' packages/twenty-ui/src/theme-constants/theme-light.css
+
+      - name: Push rebased icehouse + fast-forward main mirror
+        run: |
+          set -euo pipefail
+          TAG='${{ steps.tag.outputs.target }}'
+          git push --force-with-lease origin icehouse
+          # main is a pure mirror: move it to the tag, never anything else
+          git push origin "refs/tags/$TAG:refs/heads/main" || git push --force origin "refs/tags/$TAG:refs/heads/main"
+
+      - name: Free runner disk (upstream does the same)
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL && df -h / | tail -1
+
+      - name: Docker Hub mirror (avoid anonymous pull limits on hosted runners)
+        run: echo '{"registry-mirrors":["https://mirror.gcr.io"]}' | sudo tee /etc/docker/daemon.json >/dev/null && sudo systemctl restart docker
+
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Derive APP_VERSION from the compiled-in upstream constant
+        id: ver
+        run: |
+          V=$(sed -n "s/.*TWENTY_CURRENT_VERSION = '\(.*\)'.*/\1/p" packages/twenty-server/src/engine/core-modules/upgrade/constants/twenty-current-version.constant.ts)
+          echo "app=$V" >> "$GITHUB_OUTPUT"; echo "APP_VERSION=$V"
+
+      - name: Build and push (linux/amd64 only — no QEMU)
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: packages/twenty-docker/twenty/Dockerfile
+          target: twenty
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          build-args: APP_VERSION=${{ steps.ver.outputs.app }}
+          tags: |
+            ${{ env.IMAGE }}:icehouse-${{ steps.tag.outputs.target }}
+            ${{ env.IMAGE }}:sha-${{ github.sha }}
+            ${{ env.IMAGE }}:latest
+          cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache
+          cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache,mode=max
+
+      - name: Publish the digest (this is what deploy needs)
+        run: |
+          D='${{ steps.build.outputs.digest }}'
+          { echo "## Image built"; echo; echo "- upstream tag: \`${{ steps.tag.outputs.target }}\`";
+            echo "- image: \`${{ env.IMAGE }}@$D\`"; echo; echo "Deploy (deliberate, from the desktop):"; echo;
+            echo '```'; echo "scripts/deploy-to-vm.sh $D"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          echo "TWENTY_IMAGE=${{ env.IMAGE }}@$D"
+
+      - name: Notify (optional — only if a webhook is configured)
+        if: always() && env.WEBHOOK_URL != ''
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+        run: |
+          STATUS='${{ job.status }}'; D='${{ steps.build.outputs.digest }}'
+          curl -s -m 15 -X POST -H 'Content-Type: application/json' \
+            -d "{\"title\":\"Twenty fork build $STATUS\",\"message\":\"${{ steps.tag.outputs.target }} $D\"}" "$WEBHOOK_URL" || true

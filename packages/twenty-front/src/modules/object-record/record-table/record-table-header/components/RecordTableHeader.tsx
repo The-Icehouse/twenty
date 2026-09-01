@@ -35,7 +35,7 @@ export const RecordTableHeader = () => {
   useResizeTableHeader();
 
   return (
-    <StyledHeaderContainer>
+    <StyledHeaderContainer data-icehouse="table-header">
       {!isRecordTableDragColumnHidden && <RecordTableHeaderDragDropColumn />}
       {!isRecordTableCheckboxColumnHidden && (
         <RecordTableHeaderCheckboxColumn />

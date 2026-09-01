@@ -62,7 +62,7 @@
 .light [id^="record-table-"] [data-testid="chip"]:hover {
   text-decoration: underline;
 }
-.light [data-icehouse="table-header-cell"] {
+.light [data-icehouse="table-header"] {
   color: #516f90;
   font-size: 12px;
   font-weight: 500;

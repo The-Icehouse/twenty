@@ -161,7 +161,9 @@ jobs:
         id: build
         run: |
           set -euo pipefail
-          for T in "icehouse-${{ steps.tag.outputs.target }}" "sha-${{ github.sha }}" "latest"; do
+          # 'twenty/v2.37.4' -> 'v2.37.4': a Docker tag cannot contain a slash (first push failed on this)
+          TAGSAFE="${{ steps.tag.outputs.target }}"; TAGSAFE="${TAGSAFE#twenty/}"
+          for T in "icehouse-$TAGSAFE" "sha-${{ github.sha }}" "latest"; do
             docker tag '${{ env.IMAGE }}:candidate' "${{ env.IMAGE }}:$T"
             docker push -q "${{ env.IMAGE }}:$T"
           done

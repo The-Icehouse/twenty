@@ -69,8 +69,9 @@ jobs:
           [ -n "$BASE" ] || { echo "::error::BASE_TAG file missing on icehouse branch"; exit 1; }
           git fetch --quiet upstream "refs/tags/$BASE:refs/tags/$BASE"
           if ! git rebase --onto "$TAG" "$BASE" icehouse; then
+            CONFLICTS=$(git diff --name-only --diff-filter=U | tr '\n' ' ')
             git rebase --abort || true
-            echo "::error::Rebase of icehouse onto $TAG hit conflicts. Nothing published. Resolve by hand: git rebase --onto $TAG $BASE icehouse"
+            echo "::error::Rebase of icehouse onto $TAG hit conflicts in: $CONFLICTS — nothing published. Resolve by hand: git rebase --onto $TAG $BASE icehouse"
             exit 1
           fi
           echo "$TAG" > BASE_TAG
@@ -90,8 +91,8 @@ jobs:
           set -euo pipefail
           TAG='${{ steps.tag.outputs.target }}'
           git push --force-with-lease origin icehouse
-          # main is a pure mirror: move it to the tag, never anything else
-          git push origin "refs/tags/$TAG:refs/heads/main" || git push --force origin "refs/tags/$TAG:refs/heads/main"
+          # main is a pure mirror: fast-forward to the tag, never anything else, never forced
+          git push origin "refs/tags/$TAG:refs/heads/main"
 
       - name: Free runner disk (upstream does the same)
         run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL && df -h / | tail -1
@@ -112,23 +113,44 @@ jobs:
           V=$(sed -n "s/.*TWENTY_CURRENT_VERSION = '\(.*\)'.*/\1/p" packages/twenty-server/src/engine/core-modules/upgrade/constants/twenty-current-version.constant.ts)
           echo "app=$V" >> "$GITHUB_OUTPUT"; echo "APP_VERSION=$V"
 
-      - name: Build and push (linux/amd64 only — no QEMU)
-        id: build
+      - name: Build (linux/amd64 only — no QEMU). Loaded locally, NOT pushed yet.
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: .          # load-bearing: the default Git context would re-fetch the PRE-rebase tree
           file: packages/twenty-docker/twenty/Dockerfile
           target: twenty
           platforms: linux/amd64
-          push: true
+          load: true
+          push: false
           provenance: false
           build-args: APP_VERSION=${{ steps.ver.outputs.app }}
-          tags: |
-            ${{ env.IMAGE }}:icehouse-${{ steps.tag.outputs.target }}
-            ${{ env.IMAGE }}:sha-${{ github.sha }}
-            ${{ env.IMAGE }}:latest
+          tags: ${{ env.IMAGE }}:candidate
           cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache
           cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache,mode=max
+
+      - name: Smoke-test the candidate image before anything is published
+        run: |
+          set -euo pipefail
+          IMG='${{ env.IMAGE }}:candidate'
+          docker run --rm --entrypoint sh "$IMG" -c '
+            set -e
+            test -f /app/entrypoint.sh
+            test -f /app/packages/twenty-server/dist/main.js
+            test -f /app/packages/twenty-server/dist/front/index.html
+            grep -q -- "--t-accent-primary" /app/packages/twenty-server/dist/front/assets/*.css
+            test -f /app/packages/twenty-server/dist/front/fonts/lexend-deca/lexend-deca-latin-400-normal.woff2
+            echo "image layout OK; theme vars and Lexend Deca present"'
+
+      - name: Push (only reached if the smoke test passed)
+        id: build
+        run: |
+          set -euo pipefail
+          for T in "icehouse-${{ steps.tag.outputs.target }}" "sha-${{ github.sha }}" "latest"; do
+            docker tag '${{ env.IMAGE }}:candidate' "${{ env.IMAGE }}:$T"
+            docker push -q "${{ env.IMAGE }}:$T"
+          done
+          D=$(docker inspect --format='{{index .RepoDigests 0}}' "${{ env.IMAGE }}:latest" | sed 's/.*@//')
+          echo "digest=$D" >> "$GITHUB_OUTPUT"
 
       - name: Publish the digest (this is what deploy needs)
         run: |

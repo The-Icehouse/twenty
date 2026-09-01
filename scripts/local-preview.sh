@@ -2,6 +2,7 @@
 # Run a built fork image locally with throwaway Postgres+Redis so UI changes are checked
 # BEFORE they touch the production VM.
 #   scripts/local-preview.sh up  [image]     # default ghcr.io/the-icehouse/twenty:latest → http://localhost:3001
+#   scripts/local-preview.sh update <image>  # swap the app image, keep the database (no re-sign-up)
 #   scripts/local-preview.sh down            # destroys containers AND volumes
 #   scripts/local-preview.sh logs
 set -euo pipefail
@@ -20,7 +21,17 @@ case "${1:-up}" in
       sleep 3
     done
     echo "!! never became healthy; last server log lines:"; "${COMPOSE[@]}" logs --tail 40 server; exit 1 ;;
+  update)
+    # swap only the app image; the database volume (and your sign-up) survives
+    echo "==> updating preview to $PREVIEW_IMAGE"
+    docker pull -q "$PREVIEW_IMAGE" >/dev/null
+    "${COMPOSE[@]}" up -d --no-deps --force-recreate server worker
+    for i in $(seq 1 90); do
+      if curl -sf -m 3 http://localhost:3001/healthz >/dev/null 2>&1; then echo "==> healthy after ~$((i*3))s → http://localhost:3001"; exit 0; fi
+      sleep 3
+    done
+    echo "!! never became healthy"; "${COMPOSE[@]}" logs --tail 40 server; exit 1 ;;
   down)  "${COMPOSE[@]}" down -v --remove-orphans; echo "==> preview destroyed (volumes included)" ;;
   logs)  "${COMPOSE[@]}" logs --tail 80 server worker ;;
-  *) echo "usage: $0 up [image] | down | logs"; exit 2 ;;
+  *) echo "usage: $0 up [image] | update <image> | down | logs"; exit 2 ;;
 esac

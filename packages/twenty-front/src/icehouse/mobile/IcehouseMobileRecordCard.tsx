@@ -248,9 +248,17 @@ export const IcehouseMobileRecordCard = ({
       ? t`Added ${beautifyPastDateRelativeToNow(record.createdAt)}`
       : '';
 
-  const name = isNonEmptyString(recordChipData.name)
-    ? recordChipData.name
-    : t`Untitled`;
+  // A name that is blank or just punctuation ("-", "—", ".") is what a migrated
+  // record with no name looks like; HubSpot shows the email in that case, so fall
+  // back to the card's first secondary value, then to "Untitled".
+  const chipName = recordChipData.name?.trim() ?? '';
+  const isPlaceholderName =
+    chipName.length === 0 || /^[-–—_.·]+$/.test(chipName);
+  const name = !isPlaceholderName
+    ? chipName
+    : lineParts.length > 0
+      ? lineParts[0]
+      : t`Untitled`;
 
   const hasSecondaryLine = isDefined(chipOption) || secondaryText.length > 0;
 

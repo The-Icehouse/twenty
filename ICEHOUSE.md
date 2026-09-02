@@ -20,6 +20,34 @@ different images that is a production collision, so the rules stand:
 - **Codex**: scoped code changes and CI fixes are yours. Deploying to the VM is not; leave `deploy-to-vm.sh` to
   Claude Code unless Toby says otherwise (capability table in icehouse-crm/AGENTS.md).
 
+## Fork features (Tier 1 of the HubSpot parity map)
+
+Every feature is a fork-owned component under `packages/twenty-front/src/icehouse/<feature>/`, mounted into
+upstream with one import line and one JSX line (nine upstream files, ~30 lines in total). Conventions the
+slices settled on:
+
+- Import fork code as `~/icehouse/...`; never add fork files inside upstream module directories.
+- Upstream components carry only `data-icehouse="…"` hooks; fork components put their own hooks on their
+  own elements (`data-icehouse`, `data-icehouse-tab`, `data-icehouse-part`) so `icehouse.css` never targets
+  hashed class names.
+- `icehouse.css` is append-only per feature section. When two branches both append, the merge is a union
+  (base first, new section last); keep sections labelled with a comment header.
+- Typecheck (`mise x node@24.16.0 -- npx nx run twenty-front:typecheck`) and oxlint with the `twenty/*` plugin
+  (`npx nx build twenty-oxlint-rules` once, then `npx oxlint -c packages/twenty-front/.oxlintrc.json <paths>`)
+  before every commit. Vite does not typecheck.
+- Mounting into a unit-tested upstream component needs a `jest.mock('~/icehouse/…', () => null)` in that test
+  (see `PageLayoutLeftPanel.test.tsx`). If this spreads, switch to one `moduleNameMapper` entry.
+- Desktop-first: every slice decides explicitly for side panel (`isInSidePanel`) and mobile (`useIsMobile`).
+
+| Feature | Dir | Mount |
+|---|---|---|
+| View tab strip (+ view options) | `icehouse/view-tabs` | `RecordIndexViewBar.tsx` |
+| Index toolbar (search, Filter badge, Sort, board toggle, columns) | `icehouse/toolbar` | `views/components/ViewBar.tsx` |
+| Record quick-action row | `icehouse/quick-actions` | `page-layout/components/PageLayoutLeftPanel.tsx` |
+| Table footer + bulk-action bar | `icehouse/footer` | `record-index/components/RecordIndexTableContainer.tsx` |
+| Nav footer light/dark toggle | `icehouse/nav` | `navigation/components/MainNavigationDrawer.tsx` |
+| Name → page / arrow → preview | (upstream hook arg) | `useOpenRecordFromIndexView.ts`, `RecordTableWithWrappers.tsx` |
+
 ## What lives where
 
 - `theme/hubspot.json` + `scripts/apply-theme.mjs` — the colour/typography layer (mirrors `packages/twenty-ui/dist`).

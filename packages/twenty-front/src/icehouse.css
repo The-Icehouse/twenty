@@ -521,3 +521,44 @@ div:has(> [data-icehouse="quick-actions"]) {
   ~ * [id^="scroll-wrapper-"] div:not([aria-controls]):has(+ [aria-controls^="editable-chip-dropdown-"]) {
   display: none;
 }
+
+
+/* ───────────── mobile-nav: HubSpot's phone chrome — bottom tab bar + slim header (both modes — navy like the nav) ─────────────
+   Rendered by src/icehouse/mobile (IcehouseMobileTabBar, IcehouseMobileHeader), both mounted in DefaultLayout and
+   both `useIsMobile() → null` on desktop; the rules are gated on the same 768px query as belt and braces, so a
+   desktop layout can never match. The tab bar sits IN FLOW as the last child of DefaultLayout's 100dvh column
+   (not fixed/absolute like the stock pill), so the page container above it shrinks by the bar's height: nothing
+   can scroll behind it and no padding-bottom hook on the content is needed; the safe-area inset is the bar's own
+   bottom padding. TSX paints with theme tokens; these rules give both modes HubSpot's #2d3e50 navy, #dfe3eb
+   labels and the active tab's white + 2px #0091ae top edge. The header keeps its theme-token look (white in
+   light, dark in dark) as HubSpot's phone header does. */
+@media (max-width: 768px) {
+  [data-icehouse="mobile-tab-bar"] {
+    background: #2d3e50;
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+  /* Tabler icons take their colour as a stroke attribute; CSS wins over attributes */
+  [data-icehouse="mobile-tab-bar"] svg {
+    stroke: currentColor !important;
+    color: inherit;
+  }
+  [data-icehouse="mobile-tab-bar"] [data-icehouse-part="tab"],
+  [data-icehouse="mobile-tab-bar"] [data-icehouse-part="more"] {
+    border-top-color: transparent;
+    color: #dfe3eb;
+  }
+  [data-icehouse="mobile-tab-bar"] [data-icehouse-part]:active {
+    background: #425b76;
+  }
+  [data-icehouse="mobile-tab-bar"] [data-icehouse-part][data-active] {
+    border-top-color: #0091ae;
+    color: #ffffff;
+  }
+  /* Index pages: upstream's PageCardHeader row (object icon + title + icon-only pinned commands + "⋮") says what
+     the slim header above it already says, so it goes. The selector reads: the fork header, on an index page,
+     then any later sibling (DefaultLayout's page container) and the hooked header inside it — the record page
+     keeps its row (avatar, editable name, record actions) because its data-icehouse-page is "record". */
+  [data-icehouse="mobile-header"][data-icehouse-page="index"] ~ * [data-icehouse="page-card-header"] {
+    display: none;
+  }
+}

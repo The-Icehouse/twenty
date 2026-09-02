@@ -6,13 +6,14 @@ import { InformationBannerIsImpersonating } from '@/information-banner/component
 import { KeyboardShortcutMenu } from '@/keyboard-shortcut-menu/components/KeyboardShortcutMenu';
 import { LayoutCustomizationBar } from '@/layout-customization/components/LayoutCustomizationBar';
 import { AppNavigationDrawer } from '@/navigation/components/AppNavigationDrawer';
-import { MobileNavigationBar } from '@/navigation/components/MobileNavigationBar';
 import { PageDragDropProvider } from '@/navigation-menu-item/display/dnd/providers/PageDragDropProvider';
 import { useShowFullscreen } from '@/ui/layout/fullscreen/hooks/useShowFullscreen';
 import { useIsMobile } from '@/ui/utilities/responsive/hooks/useIsMobile';
 import { styled } from '@linaria/react';
 import { Outlet } from 'react-router-dom';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
+import { IcehouseMobileHeader } from '~/icehouse/mobile/IcehouseMobileHeader';
+import { IcehouseMobileTabBar } from '~/icehouse/mobile/IcehouseMobileTabBar';
 import { IcehouseTopBar } from '~/icehouse/top-bar/IcehouseTopBar';
 const StyledLayout = styled.div`
   background: ${themeCssVariables.grayScale.gray3};
@@ -85,6 +86,7 @@ export const DefaultLayout = () => {
             <InformationBannerIsImpersonating />
             <LayoutCustomizationBar />
             <IcehouseTopBar />
+            <IcehouseMobileHeader />
             <StyledPageContainer>
               <PageDragDropProvider>
                 <KeyboardShortcutMenu />
@@ -100,7 +102,7 @@ export const DefaultLayout = () => {
                 </StyledMainContainer>
               </PageDragDropProvider>
             </StyledPageContainer>
-            {isMobile && <MobileNavigationBar />}
+            {isMobile && <IcehouseMobileTabBar />}
           </AppErrorBoundary>
         </StyledLayout>
       </FileUploadProvider>

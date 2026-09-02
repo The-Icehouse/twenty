@@ -104,7 +104,10 @@ export const PageCardHeader = ({
   );
 
   return (
-    <StyledHeader centerTitle={shouldCenterTitle}>
+    <StyledHeader
+      centerTitle={shouldCenterTitle}
+      data-icehouse="page-card-header"
+    >
       <StyledLeft>
         {!isMobile && !isNavigationDrawerExpanded && (
           <NavigationDrawerCollapseButton direction="right" />

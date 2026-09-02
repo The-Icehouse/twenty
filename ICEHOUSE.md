@@ -53,6 +53,7 @@ slices settled on:
 | Quick-filter chip row (Tier 2; field set in `quickFilterFields.ts`) | `icehouse/quick-filters` | `views/components/ViewBar.tsx` |
 | Activities sub-tabs + search (Tier 2) | `icehouse/activities` | `activities/timeline-activities/components/TimelineCard.tsx` |
 | Association cards column (Tier 2) | `icehouse/associations` | `record-show/components/PageLayoutRecordPageRenderer.tsx` (wraps `PageLayoutRenderer`) |
+| Mobile tab bar + slim mobile header (mobile tier) | `icehouse/mobile` | `ui/layout/page/components/DefaultLayout.tsx` (replaces the `MobileNavigationBar` line); `data-icehouse` hook on `ui/layout/page/components/PageCardHeader.tsx` |
 
 ## What lives where
 

@@ -30,6 +30,13 @@ const getSubTabRank = (objectUniversalIdentifier: string): number => {
   return rank === -1 ? HUBSPOT_SUB_TAB_ORDER.length : rank;
 };
 
+// HubSpot's names for the standard activity objects; every other object keeps its own labelPlural.
+const HUBSPOT_SUB_TAB_LABELS: Record<string, string> = {
+  message: 'Emails',
+  calendarEvent: 'Meetings',
+  attachment: 'Files',
+};
+
 export const getIcehouseActivitySubTabs = ({
   activeTimelineActivityTypes,
   objectMetadataItems,
@@ -37,7 +44,7 @@ export const getIcehouseActivitySubTabs = ({
   activeTimelineActivityTypes: TimelineActivityType[];
   objectMetadataItems: Pick<
     EnrichedObjectMetadataItem,
-    'universalIdentifier' | 'labelPlural'
+    'universalIdentifier' | 'labelPlural' | 'nameSingular'
   >[];
 }): IcehouseActivitySubTab[] => {
   const typeUniversalIdentifiersByObject = new Map<string, string[]>();
@@ -76,7 +83,9 @@ export const getIcehouseActivitySubTabs = ({
 
         return {
           objectUniversalIdentifier,
-          label: objectMetadataItem.labelPlural,
+          label:
+            HUBSPOT_SUB_TAB_LABELS[objectMetadataItem.nameSingular] ??
+            objectMetadataItem.labelPlural,
           timelineActivityTypeUniversalIdentifiers,
         };
       },

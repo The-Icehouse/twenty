@@ -50,6 +50,8 @@ slices settled on:
 | Stage tracker (chevron pipeline + time in stage; Tier 2) | `icehouse/stage-tracker` | `record-show/components/PageLayoutRecordPageRenderer.tsx` |
 | Name → page / arrow → preview | (upstream hook arg) | `useOpenRecordFromIndexView.ts`, `RecordTableWithWrappers.tsx` |
 | Global top bar (Find or Ask, +, settings, help) — Tier 2 | `icehouse/top-bar` | `ui/layout/page/components/DefaultLayout.tsx` |
+| Quick-filter chip row (Tier 2; field set in `quickFilterFields.ts`) | `icehouse/quick-filters` | `views/components/ViewBar.tsx` |
+| Activities sub-tabs + search (Tier 2) | `icehouse/activities` | `activities/timeline-activities/components/TimelineCard.tsx` |
 | Association cards column (Tier 2) | `icehouse/associations` | `record-show/components/PageLayoutRecordPageRenderer.tsx` (wraps `PageLayoutRenderer`) |
 
 ## What lives where

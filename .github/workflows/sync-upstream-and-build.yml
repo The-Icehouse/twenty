@@ -153,7 +153,8 @@ jobs:
             test -f /app/packages/twenty-server/dist/main.js
             test -f /app/packages/twenty-server/dist/front/index.html
             grep -q -- "--t-accent-primary" /app/packages/twenty-server/dist/front/assets/*.css
-            grep -qi "ff7a59" /app/packages/twenty-server/dist/front/assets/*.css   # HubSpot Lorax actually compiled in
+            grep -qi "0091ae" /app/packages/twenty-server/dist/front/assets/*.css   # HubSpot interactive teal compiled in (theme v2)
+            grep -q "data-icehouse" /app/packages/twenty-server/dist/front/assets/*.js  # fork hooks compiled in
             test -f /app/packages/twenty-server/dist/front/fonts/lexend-deca/lexend-deca-latin-400-normal.woff2
             echo "image layout OK; theme vars and Lexend Deca present"'
 

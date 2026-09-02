@@ -481,3 +481,15 @@ div:has(> [data-icehouse="quick-actions"]) {
 .light [data-icehouse="associations"] [data-icehouse-part="view-all"] {
   color: #0091ae;
 }
+
+/* ───────────── associations-responsive: no third column on narrow screens ───────────── */
+/* Below 1280px the 348px left column + a 320px right column leave the tabs no room (seen at 960px:
+   the tab row collapsed to "+5 More"). Hide the association cards there; the pinned column stays. */
+@media (max-width: 1279px) {
+  [data-icehouse="associations"] {
+    display: none;
+  }
+  [data-icehouse="record-columns"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

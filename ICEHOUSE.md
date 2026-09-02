@@ -48,6 +48,7 @@ slices settled on:
 | Table footer + bulk-action bar | `icehouse/footer` | `record-index/components/RecordIndexTableContainer.tsx` |
 | Nav footer light/dark toggle | `icehouse/nav` | `navigation/components/MainNavigationDrawer.tsx` |
 | Name → page / arrow → preview | (upstream hook arg) | `useOpenRecordFromIndexView.ts`, `RecordTableWithWrappers.tsx` |
+| Global top bar (Find or Ask, +, settings, help) — Tier 2 | `icehouse/top-bar` | `ui/layout/page/components/DefaultLayout.tsx` |
 
 ## What lives where
 

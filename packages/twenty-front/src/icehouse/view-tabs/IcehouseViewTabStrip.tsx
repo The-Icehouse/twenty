@@ -3,6 +3,7 @@ import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
 import { DropdownContent } from '@/ui/layout/dropdown/components/DropdownContent';
 import { DropdownMenuItemsContainer } from '@/ui/layout/dropdown/components/DropdownMenuItemsContainer';
 import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
+import { useToggleDropdown } from '@/ui/layout/dropdown/hooks/useToggleDropdown';
 import { TAB_LIST_GAP } from '@/ui/layout/tab-list/constants/TabListGap';
 import { useTabListMeasurements } from '@/ui/layout/tab-list/hooks/useTabListMeasurements';
 import { NodeDimension } from '@/ui/utilities/dimensions/components/NodeDimension';
@@ -14,11 +15,17 @@ import { useOpenCreateViewDropdown } from '@/views/hooks/useOpenCreateViewDropow
 import { viewsFromObjectMetadataItemFamilySelector } from '@/views/states/selectors/viewsFromObjectMetadataItemFamilySelector';
 import { type View } from '@/views/types/View';
 import { viewTypeIconMapping } from '@/views/types/ViewType';
+import { VIEW_PICKER_DROPDOWN_ID } from '@/views/view-picker/constants/ViewPickerDropdownId';
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
 import { useMemo } from 'react';
 import { isDefined } from 'twenty-shared/utils';
-import { IconChevronDown, IconPlus, useIcons } from 'twenty-ui/icon';
+import {
+  IconChevronDown,
+  IconDotsVertical,
+  IconPlus,
+  useIcons,
+} from 'twenty-ui/icon';
 import { MenuItemSelect } from 'twenty-ui/navigation';
 import { themeCssVariables, useTheme } from 'twenty-ui/theme-constants';
 
@@ -189,6 +196,25 @@ const AddTab = ({ label, disabled, onClick }: AddTabProps) => {
   );
 };
 
+type OptionsTabProps = { label: string; onClick: () => void };
+
+// Opens upstream's ViewPickerDropdown (still mounted, trigger hidden by icehouse.css) so
+// rename / reorder / delete / favourite stay one click away on desktop.
+const OptionsTab = ({ label, onClick }: OptionsTabProps) => {
+  const theme = useTheme();
+  return (
+    <StyledTab
+      type="button"
+      aria-label={label}
+      title={label}
+      data-icehouse-tab="options"
+      onClick={onClick}
+    >
+      <IconDotsVertical size={theme.icon.size.sm} />
+    </StyledTab>
+  );
+};
+
 export const IcehouseViewTabStrip = () => {
   const { t } = useLingui();
   const isMobile = useIsMobile();
@@ -204,6 +230,7 @@ export const IcehouseViewTabStrip = () => {
   const { changeView } = useChangeView();
   const { openCreateViewDropdown } = useOpenCreateViewDropdown();
   const { closeDropdown } = useCloseDropdown();
+  const { toggleDropdown } = useToggleDropdown();
   const { getIcon } = useIcons();
 
   // The measurement hook only reads ids; keep the list referentially stable so
@@ -273,6 +300,14 @@ export const IcehouseViewTabStrip = () => {
         </NodeDimension>
         <NodeDimension onDimensionChange={onAddButtonWidthChange}>
           <AddTab label={addViewLabel} />
+          <OptionsTab
+            label={t`View options`}
+            onClick={() =>
+              toggleDropdown({
+                dropdownComponentInstanceIdFromProps: VIEW_PICKER_DROPDOWN_ID,
+              })
+            }
+          />
         </NodeDimension>
       </StyledHiddenMeasurements>
 

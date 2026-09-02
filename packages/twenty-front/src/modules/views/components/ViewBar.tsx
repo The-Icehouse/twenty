@@ -19,6 +19,7 @@ import { ViewBarRecordFilterEffect } from '@/views/components/ViewBarRecordFilte
 import { ViewBarRecordFilterGroupEffect } from '@/views/components/ViewBarRecordFilterGroupEffect';
 import { ViewBarRecordSortEffect } from '@/views/components/ViewBarRecordSortEffect';
 import { ViewBarFilterDropdownIds } from '@/views/constants/ViewBarFilterDropdownIds';
+import { IcehouseQuickFilterRow } from '~/icehouse/quick-filters/IcehouseQuickFilterRow';
 import { IcehouseIndexToolbar } from '~/icehouse/toolbar/IcehouseIndexToolbar';
 import { IcehouseViewBarUpstreamActions } from '~/icehouse/toolbar/IcehouseViewBarUpstreamActions';
 import { UpdateViewButtonGroup } from './UpdateViewButtonGroup';
@@ -79,6 +80,7 @@ export const ViewBar = ({
         bottomComponent={
           <>
             <IcehouseIndexToolbar viewBarId={viewBarId} />
+            <IcehouseQuickFilterRow viewBarId={viewBarId} />
             <ViewBarDetails
               hasFilterButton
               viewBarId={viewBarId}

@@ -2,10 +2,13 @@ import { type FieldMetadataItem } from '@/object-metadata/types/FieldMetadataIte
 import { useSetRecordFilterUsedInAdvancedFilterDropdownRow } from '@/object-record/advanced-filter/hooks/useSetRecordFilterUsedInAdvancedFilterDropdownRow';
 import { ObjectFilterDropdownContentWrapper } from '@/object-record/object-filter-dropdown/components/ObjectFilterDropdownContentWrapper';
 import { ObjectFilterDropdownFilterInput } from '@/object-record/object-filter-dropdown/components/ObjectFilterDropdownFilterInput';
+import { getCompositeSubFieldLabel } from '@/object-record/object-filter-dropdown/utils/getCompositeSubFieldLabel';
+import { isCompositeFieldType } from '@/object-record/object-filter-dropdown/utils/isCompositeFieldType';
 import { useResetFilterDropdown } from '@/object-record/object-filter-dropdown/hooks/useResetFilterDropdown';
 import { ObjectFilterDropdownComponentInstanceContext } from '@/object-record/object-filter-dropdown/states/contexts/ObjectFilterDropdownComponentInstanceContext';
 import { useUpsertRecordFilterGroup } from '@/object-record/record-filter-group/hooks/useUpsertRecordFilterGroup';
 import { currentRecordFilterGroupsComponentState } from '@/object-record/record-filter-group/states/currentRecordFilterGroupsComponentState';
+import { useCheckIsSoftDeleteFilter } from '@/object-record/record-filter/hooks/useCheckIsSoftDeleteFilter';
 import { useCreateEmptyRecordFilterFromFieldMetadataItem } from '@/object-record/record-filter/hooks/useCreateEmptyRecordFilterFromFieldMetadataItem';
 import { useFilterableFieldMetadataItemsInRecordIndexContext } from '@/object-record/record-filter/hooks/useFilterableFieldMetadataItemsInRecordIndexContext';
 import { useRemoveRecordFilter } from '@/object-record/record-filter/hooks/useRemoveRecordFilter';
@@ -14,6 +17,7 @@ import { currentRecordFiltersComponentState } from '@/object-record/record-filte
 import { type RecordFilter } from '@/object-record/record-filter/types/RecordFilter';
 import { isRecordFilterConsideredEmpty } from '@/object-record/record-filter/utils/isRecordFilterConsideredEmpty';
 import { useRecordIndexContextOrThrow } from '@/object-record/record-index/contexts/RecordIndexContext';
+import { isValidSubFieldName } from '@/settings/data-model/utils/isValidSubFieldName';
 import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
 import { useCloseDropdown } from '@/ui/layout/dropdown/hooks/useCloseDropdown';
 import { useOpenDropdown } from '@/ui/layout/dropdown/hooks/useOpenDropdown';
@@ -29,12 +33,14 @@ import { useGetRecordFilterChipLabelValue } from '@/views/hooks/useGetRecordFilt
 import { useSetEditableFilterChipDropdownStates } from '@/views/hooks/useSetEditableFilterChipDropdownStates';
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
+import { isNonEmptyString } from '@sniptt/guards';
 import { type MouseEvent } from 'react';
 import { RecordFilterGroupLogicalOperator } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 import { IconChevronDown, IconFilter, IconPlus, IconX } from 'twenty-ui/icon';
 import { themeCssVariables, useTheme } from 'twenty-ui/theme-constants';
 import { v4 } from 'uuid';
+import { FieldMetadataType } from '~/generated-metadata/graphql';
 import { getIcehouseQuickFilterFieldNames } from '~/icehouse/quick-filters/quickFilterFields';
 
 // Icehouse fork — HubSpot's always-present quick-filter chip row
@@ -63,10 +69,22 @@ import { getIcehouseQuickFilterFieldNames } from '~/icehouse/quick-filters/quick
 //     opens ViewBarFilterDropdownIds.ADVANCED by id — that Dropdown is mounted by
 //     ViewBarDetails once a root group exists.
 //
+// One chip per filter. ViewBarDetails, the sibling ViewBar.tsx renders right
+// after this row, draws its own editable chip for every top-level filter, so an
+// applied quick filter used to show twice. Two things fix that without touching
+// ViewBarDetails: (1) besides the configured chips, the row ADOPTS every other
+// top-level filter (added via "+", a table header, or as a second filter on a
+// configured field) as a chip of its own, the way HubSpot appends added filters
+// to the row — that chip disappears with the filter; (2) when every top-level
+// filter has a chip here the row sets data-icehouse-all-owned on itself and
+// icehouse.css parks ViewBarDetails' filter chips (its sort / Deleted /
+// search / Advanced chips, "+", Reset and "Update view" stay). The only case
+// that still shows both is a filter on a field this object cannot filter on.
+//
 // Stable CSS hooks (icehouse.css, no hashed classes): the row carries
-// data-icehouse="quick-filters"; each chip data-icehouse-part="chip" | "add" |
-// "advanced" (+ "clear" / "count" for the inner controls) and data-active when a
-// filter is applied.
+// data-icehouse="quick-filters" (+ data-icehouse-all-owned, above); each chip
+// data-icehouse-part="chip" | "add" | "advanced" (+ "clear" / "count" for the
+// inner controls) and data-active when a filter is applied.
 
 const StyledRow = styled.div`
   align-items: center;
@@ -168,8 +186,10 @@ const StyledCount = styled.span`
   padding: 0 ${themeCssVariables.spacing[1]};
 `;
 
-const getIcehouseQuickFilterDropdownId = (fieldMetadataItemId: string) =>
-  `icehouse-quick-filter-${fieldMetadataItemId}`;
+// Configured chips are keyed by their field, adopted ones by their filter, so
+// a configured chip keeps one dropdown id while its filter is created/removed.
+const getIcehouseQuickFilterDropdownId = (key: string) =>
+  `icehouse-quick-filter-${key}`;
 
 type IcehouseQuickFilterRelationChipValueProps = {
   recordFilter: RecordFilter;
@@ -200,12 +220,14 @@ const IcehouseQuickFilterStandardChipValue = ({
 };
 
 type IcehouseQuickFilterChipProps = {
+  dropdownId: string;
   fieldMetadataItem: FieldMetadataItem;
   recordFilter: RecordFilter | undefined;
   viewBarId: string;
 };
 
 const IcehouseQuickFilterChip = ({
+  dropdownId,
   fieldMetadataItem,
   recordFilter,
   viewBarId,
@@ -221,7 +243,6 @@ const IcehouseQuickFilterChip = ({
     useSetEditableFilterChipDropdownStates();
   const { closeDropdown } = useCloseDropdown();
 
-  const dropdownId = getIcehouseQuickFilterDropdownId(fieldMetadataItem.id);
   const isActive = isDefined(recordFilter);
 
   // Editor state is keyed by the filter's id (shared with the ViewBarDetails
@@ -261,12 +282,28 @@ const IcehouseQuickFilterChip = ({
   // Upstream's rule for editable chips: a filter closed while still empty is
   // discarded. The chip itself stays because it is drawn from config.
   const handleDropdownClose = () => {
-    if (isDefined(recordFilter) && isRecordFilterConsideredEmpty(recordFilter)) {
+    if (
+      isDefined(recordFilter) &&
+      isRecordFilterConsideredEmpty(recordFilter)
+    ) {
       removeRecordFilter({ recordFilterId: recordFilter.id });
     }
   };
 
-  const fieldLabel = fieldMetadataItem.label;
+  // Spelled like upstream's EditableFilterChip: the field, plus the composite
+  // sub-field the filter is on ("Email / Primary email") when there is one.
+  const subFieldName = recordFilter?.subFieldName;
+  const subFieldLabel =
+    isCompositeFieldType(fieldMetadataItem.type) &&
+    fieldMetadataItem.type !== FieldMetadataType.ACTOR &&
+    isNonEmptyString(subFieldName) &&
+    isValidSubFieldName(subFieldName)
+      ? getCompositeSubFieldLabel(fieldMetadataItem.type, subFieldName)
+      : '';
+
+  const fieldLabel = isNonEmptyString(subFieldLabel)
+    ? `${fieldMetadataItem.label} / ${subFieldLabel}`
+    : fieldMetadataItem.label;
 
   return (
     <ObjectFilterDropdownComponentInstanceContext.Provider
@@ -481,6 +518,8 @@ export const IcehouseQuickFilterRow = ({
     viewBarId,
   );
 
+  const { isSeeDeletedRecordsFilter } = useCheckIsSoftDeleteFilter();
+
   // Config names → this object's filterable fields, in config order; anything
   // the object lacks (or cannot filter on) is simply not a chip.
   const quickFilterFieldMetadataItems = getIcehouseQuickFilterFieldNames(
@@ -499,26 +538,78 @@ export const IcehouseQuickFilterRow = ({
     return null;
   }
 
-  // The chip edits the first top-level (non-advanced) filter on its field —
-  // the same one a table-header "Filter" click would reuse.
-  const findRecordFilterForField = (fieldMetadataItemId: string) =>
-    currentRecordFilters.find(
-      (recordFilter) =>
-        recordFilter.fieldMetadataId === fieldMetadataItemId &&
-        !isDefined(recordFilter.recordFilterGroupId),
-    );
+  // The filters ViewBarDetails draws chips for: not inside an advanced-filter
+  // group, and not the "Deleted" toggle (that one has its own chip there).
+  const topLevelRecordFilters = currentRecordFilters.filter(
+    (recordFilter) =>
+      !isDefined(recordFilter.recordFilterGroupId) &&
+      !isSeeDeletedRecordsFilter(recordFilter),
+  );
+
+  // A configured chip edits the first top-level filter on its field — the
+  // same one a table-header "Filter" click would reuse.
+  const configuredChips = quickFilterFieldMetadataItems.map(
+    (fieldMetadataItem) => ({
+      fieldMetadataItem,
+      recordFilter: topLevelRecordFilters.find(
+        (recordFilter) => recordFilter.fieldMetadataId === fieldMetadataItem.id,
+      ),
+    }),
+  );
+
+  const claimedRecordFilterIds = new Set(
+    configuredChips
+      .map((configuredChip) => configuredChip.recordFilter?.id)
+      .filter(isDefined),
+  );
+
+  // Every other top-level filter gets a chip of its own after the configured
+  // ones (see the header comment); one on a field this object cannot filter
+  // on is left to ViewBarDetails alone.
+  const adoptedChips = topLevelRecordFilters
+    .filter((recordFilter) => !claimedRecordFilterIds.has(recordFilter.id))
+    .map((recordFilter) => {
+      const fieldMetadataItem = filterableFieldMetadataItems.find(
+        (candidate) => candidate.id === recordFilter.fieldMetadataId,
+      );
+
+      return isDefined(fieldMetadataItem)
+        ? { fieldMetadataItem, recordFilter }
+        : undefined;
+    })
+    .filter(isDefined);
+
+  const ownedRecordFilterIds = new Set([
+    ...claimedRecordFilterIds,
+    ...adoptedChips.map((adoptedChip) => adoptedChip.recordFilter.id),
+  ]);
+
+  const isEveryTopLevelFilterOwned = topLevelRecordFilters.every(
+    (recordFilter) => ownedRecordFilterIds.has(recordFilter.id),
+  );
 
   return (
     <StyledRow
       data-icehouse="quick-filters"
+      data-icehouse-all-owned={isEveryTopLevelFilterOwned || undefined}
       role="group"
       aria-label={t`Quick filters`}
     >
-      {quickFilterFieldMetadataItems.map((fieldMetadataItem) => (
+      {configuredChips.map(({ fieldMetadataItem, recordFilter }) => (
         <IcehouseQuickFilterChip
           key={fieldMetadataItem.id}
+          dropdownId={getIcehouseQuickFilterDropdownId(fieldMetadataItem.id)}
           fieldMetadataItem={fieldMetadataItem}
-          recordFilter={findRecordFilterForField(fieldMetadataItem.id)}
+          recordFilter={recordFilter}
+          viewBarId={viewBarId}
+        />
+      ))}
+      {adoptedChips.map(({ fieldMetadataItem, recordFilter }) => (
+        <IcehouseQuickFilterChip
+          key={recordFilter.id}
+          dropdownId={getIcehouseQuickFilterDropdownId(recordFilter.id)}
+          fieldMetadataItem={fieldMetadataItem}
+          recordFilter={recordFilter}
           viewBarId={viewBarId}
         />
       ))}

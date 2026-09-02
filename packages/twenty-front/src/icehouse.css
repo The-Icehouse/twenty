@@ -493,3 +493,31 @@ div:has(> [data-icehouse="quick-actions"]) {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ───────────── quick-filters-dedupe: one chip per filter ───────────── */
+/* ViewBarDetails — the sibling ViewBar.tsx renders right after the quick-filter row, inside TopBar's
+   flex column — draws its own editable chip for every top-level filter, so an applied quick filter
+   showed twice. The row (IcehouseQuickFilterRow.tsx) sets data-icehouse-all-owned on itself when
+   every top-level filter has a chip in the row; these rules then park ViewBarDetails' filter chips.
+   Hooks, none hashed: `~ *` reaches the details bar (the fork owns that sibling order);
+   [id^="scroll-wrapper-"] is ScrollWrapper's own id (scroll-wrapper-<viewBarId>); every chip is a
+   Dropdown whose anchor carries aria-controls="<dropdownId>-options", and filter chips alone use
+   getEditableChipDropdownId's "editable-chip-dropdown-" prefix — sort chips ("sort-chip-…"), the
+   Deleted chip, the any-field search chip, the Advanced button, "+", Reset and "Update view" are
+   untouched. Parked (invisible, zero-size, out of flow) rather than display:none because a table
+   header's "Filter" item opens that same dropdown by id and floating-ui needs a real anchor rect:
+   parked, the panel opens at the start of the chip strip; display:none would send it to the page
+   origin. The second rule drops the hairline ViewBarDetails draws between sort chips and the
+   (now parked) filter chips: the only aria-controls-less div directly before a filter chip. */
+[data-icehouse="quick-filters"][data-icehouse-all-owned]
+  ~ * [id^="scroll-wrapper-"] [aria-controls^="editable-chip-dropdown-"] {
+  height: 0;
+  overflow: hidden;
+  position: absolute;
+  visibility: hidden;
+  width: 0;
+}
+[data-icehouse="quick-filters"][data-icehouse-all-owned]
+  ~ * [id^="scroll-wrapper-"] div:not([aria-controls]):has(+ [aria-controls^="editable-chip-dropdown-"]) {
+  display: none;
+}

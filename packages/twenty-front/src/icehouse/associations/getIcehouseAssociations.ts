@@ -59,6 +59,58 @@ const isExcludedTarget = (objectMetadataItem: EnrichedObjectMetadataItem) =>
   objectMetadataItem.isSystem === true ||
   objectMetadataItem.isActive === false;
 
+// HubSpot orders the column by importance, not alphabet: the objects people
+// actually work from sit on top. Keyed by the nameSingular of the object a
+// card shows (its far side for a junction); anything not listed goes after,
+// alphabetically, and cards on the same object are alphabetical by label.
+const ICEHOUSE_ASSOCIATION_ORDER: readonly string[] = [
+  'company',
+  'person',
+  'opportunity',
+  'lead',
+  'agreement',
+  'registration',
+  'eventRegistration',
+  'programme',
+  'cohort',
+  'quote',
+  'lineItem',
+  'coach',
+];
+
+const getAssociationOrderRank = (objectNameSingular: string): number => {
+  const rank = ICEHOUSE_ASSOCIATION_ORDER.indexOf(objectNameSingular);
+
+  return rank === -1 ? ICEHOUSE_ASSOCIATION_ORDER.length : rank;
+};
+
+// The object whose records the card lists. A junction card lists the records
+// its link rows point at, so it ranks by that far side (the best rank across
+// a morph target field's objects), not by the junction object itself.
+const getAssociationRank = (association: IcehouseAssociation): number => {
+  if (!isDefined(association.junctionConfig)) {
+    return getAssociationOrderRank(
+      association.relationObjectMetadataItem.nameSingular,
+    );
+  }
+
+  const farSideObjectNames = association.junctionConfig.targetFields.flatMap(
+    (targetField) =>
+      targetField.type === FieldMetadataType.MORPH_RELATION
+        ? (targetField.morphRelations ?? []).map(
+            (morphRelation) => morphRelation.targetObjectMetadata.nameSingular,
+          )
+        : isDefined(targetField.relation)
+          ? [targetField.relation.targetObjectMetadata.nameSingular]
+          : [],
+  );
+
+  return Math.min(
+    ICEHOUSE_ASSOCIATION_ORDER.length,
+    ...farSideObjectNames.map(getAssociationOrderRank),
+  );
+};
+
 // The foreign key lives on the related object, on the field that points back
 // here. A morph field there (one field, several targets) is exposed to GraphQL
 // under a per-target name, so its join column is computed the same way
@@ -244,7 +296,9 @@ export const getIcehouseAssociations = ({
     }
   }
 
-  return associations.sort((left, right) =>
-    left.label.localeCompare(right.label),
+  return associations.sort(
+    (left, right) =>
+      getAssociationRank(left) - getAssociationRank(right) ||
+      left.label.localeCompare(right.label),
   );
 };

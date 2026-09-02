@@ -10,6 +10,7 @@ import { navigationDrawerActiveTabState } from '@/ui/navigation/states/navigatio
 import { NAVIGATION_DRAWER_TABS } from '@/ui/navigation/states/navigationDrawerTabs';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { PermissionFlagType } from '~/generated-metadata/graphql';
+import { IcehouseNavFooter } from '~/icehouse/nav/IcehouseNavFooter';
 
 export const MainNavigationDrawer = ({ className }: { className?: string }) => {
   const currentWorkspace = useAtomStateValue(currentWorkspaceState);
@@ -38,6 +39,7 @@ export const MainNavigationDrawer = ({ className }: { className?: string }) => {
           navigationContent={<MainNavigationDrawerNavigationContent />}
         />
       </NavigationDrawerScrollableContent>
+      <IcehouseNavFooter />
     </NavigationDrawer>
   );
 };

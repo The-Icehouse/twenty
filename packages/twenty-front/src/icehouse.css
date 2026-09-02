@@ -54,6 +54,12 @@
   color: #99acc2;
 }
 
+/* ───────────── Nav footer: the fork's light/dark toggle (both modes — the nav is navy in both) ───────────── */
+[data-icehouse="nav-drawer"] [data-icehouse="nav-footer"] {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: 8px;
+}
+
 /* ───────────── Record tables: HubSpot density and link styling ───────────── */
 .light [id^="record-table-"] [data-testid="chip"] {
   color: #0091ae;

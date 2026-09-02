@@ -1,3 +1,5 @@
+> **Icehouse fork:** agent conventions, deploy coordination and the one-driver rule are in [`ICEHOUSE.md`](ICEHOUSE.md). Read it before touching the VM or `icehouse.css`.
+
 # CLAUDE.md
 
 Twenty is an open-source CRM — an Nx / Yarn 4 monorepo. Main packages: `twenty-front` (React 18, Jotai, Linaria, Vite), `twenty-server` (NestJS, TypeORM, PostgreSQL, Redis, GraphQL), `twenty-shared` (isomorphic types/utils), `twenty-ui`, `twenty-sdk` (application SDK + CLI), `twenty-e2e-testing` (Playwright).

@@ -5,6 +5,7 @@ import { useRecordIndexContextOrThrow } from '@/object-record/record-index/conte
 import { RecordTableWithWrappers } from '@/object-record/record-table/components/RecordTableWithWrappers';
 import { isModalOpenedComponentState } from '@/ui/layout/modal/states/isModalOpenedComponentState';
 import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
+import { IcehouseTableFooter } from '~/icehouse/footer/IcehouseTableFooter';
 
 type RecordIndexTableContainerProps = {
   recordTableId: string;
@@ -29,6 +30,7 @@ export const RecordIndexTableContainer = ({
         objectNameSingular={objectNameSingular}
         viewBarId={viewBarInstanceId}
       />
+      <IcehouseTableFooter recordTableId={recordTableId} />
       {isModalOpened && <RecordIndexRemoveSortingModal />}
     </>
   );

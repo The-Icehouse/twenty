@@ -2,7 +2,6 @@ import { styled } from '@linaria/react';
 
 import { CustomResolverFetchMoreLoader } from '@/activities/components/CustomResolverFetchMoreLoader';
 import { SkeletonLoader } from '@/activities/components/SkeletonLoader';
-import { EventList } from '@/activities/timeline-activities/components/EventList';
 import { useTimelineActivities } from '@/activities/timeline-activities/hooks/useTimelineActivities';
 import { RecordListUpsertRecordsInStoreEffect } from '@/object-record/record-list/components/RecordListUpsertRecordsInStoreEffect';
 import { StyledWidgetScrollContainer } from '@/ui/layout/components/WidgetContentContainer';
@@ -17,6 +16,7 @@ import {
   AnimatedPlaceholderEmptyTitle,
 } from 'twenty-ui/feedback';
 import { MOBILE_VIEWPORT, themeCssVariables } from 'twenty-ui/theme-constants';
+import { IcehouseActivitiesTimeline } from '~/icehouse/activities/IcehouseActivitiesTimeline';
 
 const StyledMainContainer = styled(StyledWidgetScrollContainer)`
   align-items: flex-start;
@@ -81,10 +81,11 @@ export const TimelineCard = () => {
     <>
       <RecordListUpsertRecordsInStoreEffect records={linkedRecords} />
       <StyledMainContainer>
-        <EventList
+        <IcehouseActivitiesTimeline
           targetableObject={targetRecord}
           title={t`All`}
           events={timelineActivities ?? []}
+          linkedRecords={linkedRecords}
         />
         <CustomResolverFetchMoreLoader
           loading={loadingMore}

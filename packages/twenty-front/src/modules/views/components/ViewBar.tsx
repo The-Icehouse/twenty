@@ -19,6 +19,8 @@ import { ViewBarRecordFilterEffect } from '@/views/components/ViewBarRecordFilte
 import { ViewBarRecordFilterGroupEffect } from '@/views/components/ViewBarRecordFilterGroupEffect';
 import { ViewBarRecordSortEffect } from '@/views/components/ViewBarRecordSortEffect';
 import { ViewBarFilterDropdownIds } from '@/views/constants/ViewBarFilterDropdownIds';
+import { IcehouseIndexToolbar } from '~/icehouse/toolbar/IcehouseIndexToolbar';
+import { IcehouseViewBarUpstreamActions } from '~/icehouse/toolbar/IcehouseViewBarUpstreamActions';
 import { UpdateViewButtonGroup } from './UpdateViewButtonGroup';
 import { ViewBarDetails } from './ViewBarDetails';
 
@@ -64,7 +66,7 @@ export const ViewBar = ({
         className={className}
         leftComponent={<ViewPickerDropdown />}
         rightComponent={
-          <>
+          <IcehouseViewBarUpstreamActions>
             <ObjectFilterDropdownComponentInstanceContext.Provider
               value={{ instanceId: ViewBarFilterDropdownIds.MAIN }}
             >
@@ -72,15 +74,18 @@ export const ViewBar = ({
             </ObjectFilterDropdownComponentInstanceContext.Provider>
             <ObjectSortDropdownButton />
             {optionsDropdownButton}
-          </>
+          </IcehouseViewBarUpstreamActions>
         }
         bottomComponent={
-          <ViewBarDetails
-            hasFilterButton
-            viewBarId={viewBarId}
-            objectNamePlural={objectNamePlural}
-            rightComponent={<UpdateViewButtonGroup />}
-          />
+          <>
+            <IcehouseIndexToolbar viewBarId={viewBarId} />
+            <ViewBarDetails
+              hasFilterButton
+              viewBarId={viewBarId}
+              objectNamePlural={objectNamePlural}
+              rightComponent={<UpdateViewButtonGroup />}
+            />
+          </>
         }
       />
     </ObjectSortDropdownComponentInstanceContext.Provider>

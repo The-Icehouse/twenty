@@ -171,4 +171,87 @@ div:has(> [data-icehouse="quick-actions"]) {
   border-color: #cbd6e2;
   border-radius: 3px;
   box-shadow: 0 2px 8px 0 rgba(45, 62, 80, 0.16);
+/* ───────────── Index toolbar: HubSpot's search / Filter / Sort row ───────────── */
+/* Rendered by src/icehouse/toolbar/IcehouseIndexToolbar.tsx (desktop only). Filter and Sort
+   are upstream's own buttons, so they are reached by position under the hook, never by class.
+   Mode-agnostic geometry first; HubSpot colours are light-mode only so dark mode keeps the
+   theme tokens set in the TSX. */
+[data-icehouse="index-toolbar"] [data-icehouse="search"],
+[data-icehouse="index-toolbar"] [data-icehouse="filter-button"] button:not([data-icehouse="filter-count"]),
+[data-icehouse="index-toolbar"] [data-icehouse="sort-button"] button,
+[data-icehouse="index-toolbar"] [data-icehouse="columns-button"] button {
+  border-radius: 3px;
+}
+[data-icehouse="index-toolbar"] [data-icehouse="filter-button"] button:not([data-icehouse="filter-count"]),
+[data-icehouse="index-toolbar"] [data-icehouse="sort-button"] button {
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 12px;
+}
+[data-icehouse="index-toolbar"] [data-icehouse="filter-button"][data-active] {
+  border: 1px solid transparent;
+  border-radius: 3px;
+  gap: 6px;
+  padding-right: 8px;
+}
+[data-icehouse="index-toolbar"] [data-icehouse="filter-button"][data-active] button:not([data-icehouse="filter-count"]) {
+  border: none;
+}
+/* Disabled buttons swallow no pointer events, so the wrapping span still shows the tooltip */
+[data-icehouse="index-toolbar"] button[disabled] {
+  pointer-events: none;
+}
+
+.light [data-icehouse="index-toolbar"] {
+  background: #ffffff;
+  color: #33475b;
+}
+.light [data-icehouse="index-toolbar"] [data-icehouse="search"] {
+  border-color: #cbd6e2;
+  color: #7c98b6;
+}
+.light [data-icehouse="index-toolbar"] [data-icehouse="search"]:focus-within {
+  border-color: #0091ae;
+  box-shadow: 0 0 0 1px #0091ae;
+}
+.light [data-icehouse="index-toolbar"] [data-icehouse="search"] input {
+  color: #33475b;
+}
+.light [data-icehouse="index-toolbar"] [data-icehouse="search"] input::placeholder {
+  color: #7c98b6;
+}
+.light [data-icehouse="index-toolbar"] [data-icehouse="filter-button"] button:not([data-icehouse="filter-count"]),
+.light [data-icehouse="index-toolbar"] [data-icehouse="sort-button"] button {
+  background: #ffffff;
+  border: 1px solid #cbd6e2;
+  color: #33475b;
+}
+.light [data-icehouse="index-toolbar"] [data-icehouse="filter-button"] button:not([data-icehouse="filter-count"]):hover,
+.light [data-icehouse="index-toolbar"] [data-icehouse="sort-button"] button:hover {
+  background: #f5f8fa;
+}
+.light [data-icehouse="index-toolbar"] [data-icehouse="filter-button"][data-active] {
+  background: #e5f5f8;
+  border-color: #0091ae;
+}
+.light [data-icehouse="index-toolbar"] [data-icehouse="filter-button"][data-active] button:not([data-icehouse="filter-count"]) {
+  background: transparent;
+  color: #0091ae;
+}
+.light [data-icehouse="index-toolbar"] [data-icehouse="filter-count"] {
+  background: #0091ae;
+  color: #ffffff;
+}
+.light [data-icehouse="index-toolbar"] [data-icehouse="view-type-toggle"] button,
+.light [data-icehouse="index-toolbar"] [data-icehouse="columns-button"] button {
+  background: #ffffff;
+  border-color: #cbd6e2;
+  color: #33475b;
+}
+.light [data-icehouse="index-toolbar"] [data-icehouse="view-type-toggle"] [data-active] button {
+  background: #e5f5f8;
+  color: #0091ae;
+}
+.light [data-icehouse="index-toolbar"] [data-icehouse="view-type-toggle"] button[disabled] {
+  color: #b0c1d4;
 }

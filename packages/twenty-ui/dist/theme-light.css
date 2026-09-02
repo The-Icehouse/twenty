@@ -89,11 +89,11 @@
   --t-accent-accent10: #007a8c;
   --t-accent-accent11: #006e7f;
   --t-accent-accent12: #0b4a55;
-  --t-background-noisy: #f5f8fa;
-  --t-background-primary: #ffffff;
-  --t-background-secondary: #f5f8fa;
-  --t-background-tertiary: #eaf0f6;
-  --t-background-quaternary: #dfe3eb;
+  --t-background-noisy: #eaf0f6;
+  --t-background-primary: #f4f7fa;
+  --t-background-secondary: #eaf0f6;
+  --t-background-tertiary: #dfe5ec;
+  --t-background-quaternary: #cbd6e2;
   --t-background-inverted-primary: color(display-p3 0.2 0.2 0.2);
   --t-background-inverted-secondary: color(display-p3 0.4 0.4 0.4);
   --t-background-danger: color(display-p3 0.985 0.925 0.925);

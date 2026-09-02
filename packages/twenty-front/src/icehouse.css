@@ -76,7 +76,7 @@
 
 /* ───────────── Record page: HubSpot's card look ───────────── */
 .light [data-testid="record-fields-widget"] {
-  background: #ffffff;
+  background: #f4f7fa;
   border: 1px solid #cbd6e2;
   border-radius: 4px;
   box-shadow: 0 1px 4px 0 rgba(66, 91, 117, 0.06);
@@ -90,7 +90,7 @@
   box-shadow: inset 0 -3px 0 #0091ae;
 }
 .light [data-icehouse="timeline-item"] {
-  background: #ffffff;
+  background: #f4f7fa;
   border: 1px solid #cbd6e2;
   border-radius: 4px;
   box-shadow: 0 1px 4px 0 rgba(66, 91, 117, 0.06);
@@ -120,7 +120,7 @@
 /* HubSpot look for the strip: white bar, #cbd6e2 rule, #516f90 tabs, active #33475b on a 3px #0091ae
    underline. Dark mode keeps the component's theme tokens. */
 .light [data-icehouse="view-tabs"] {
-  background: #ffffff;
+  background: #f4f7fa;
   border-bottom: 1px solid #cbd6e2;
 }
 .light [data-icehouse="view-tabs"] [data-icehouse-tab] {
@@ -145,7 +145,7 @@ div:has(> [data-icehouse="quick-actions"]) {
   grid-template-rows: auto auto 1fr;
 }
 .light [data-icehouse="quick-actions"] [data-icehouse-part="button"] {
-  background: #ffffff;
+  background: #f4f7fa;
   border-color: #cbd6e2;
   color: #0091ae;
 }
@@ -161,7 +161,7 @@ div:has(> [data-icehouse="quick-actions"]) {
 /* TSX paints these with theme tokens (so dark mode is right by default); light mode gets
    HubSpot's white bar, #cbd6e2 hairline, #eaf0f6/#33475b count badge and 3px radii. */
 .light [data-icehouse="table-footer"] {
-  background: #ffffff;
+  background: #f4f7fa;
   border-top-color: #cbd6e2;
 }
 .light [data-icehouse="table-footer"] [data-icehouse="record-count"] {
@@ -174,7 +174,7 @@ div:has(> [data-icehouse="quick-actions"]) {
   border-radius: 3px;
 }
 .light [data-icehouse="bulk-bar"] {
-  background: #ffffff;
+  background: #f4f7fa;
   border-color: #cbd6e2;
   border-radius: 3px;
   box-shadow: 0 2px 8px 0 rgba(45, 62, 80, 0.16);
@@ -212,7 +212,7 @@ div:has(> [data-icehouse="quick-actions"]) {
 }
 
 .light [data-icehouse="index-toolbar"] {
-  background: #ffffff;
+  background: #f4f7fa;
   color: #33475b;
 }
 .light [data-icehouse="index-toolbar"] [data-icehouse="search"] {
@@ -231,7 +231,7 @@ div:has(> [data-icehouse="quick-actions"]) {
 }
 .light [data-icehouse="index-toolbar"] [data-icehouse="filter-button"] button:not([data-icehouse="filter-count"]),
 .light [data-icehouse="index-toolbar"] [data-icehouse="sort-button"] button {
-  background: #ffffff;
+  background: #f4f7fa;
   border: 1px solid #cbd6e2;
   color: #33475b;
 }
@@ -253,7 +253,7 @@ div:has(> [data-icehouse="quick-actions"]) {
 }
 .light [data-icehouse="index-toolbar"] [data-icehouse="view-type-toggle"] button,
 .light [data-icehouse="index-toolbar"] [data-icehouse="columns-button"] button {
-  background: #ffffff;
+  background: #f4f7fa;
   border-color: #cbd6e2;
   color: #33475b;
 }

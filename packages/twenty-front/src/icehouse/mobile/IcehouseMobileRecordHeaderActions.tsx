@@ -3,8 +3,8 @@ import { useRecordShowPagePagination } from '@/object-record/record-show/hooks/u
 import { useSidePanelMenu } from '@/side-panel/hooks/useSidePanelMenu';
 import { useLingui } from '@lingui/react/macro';
 import {
-  IconChevronLeft,
-  IconChevronRight,
+  IconChevronDown,
+  IconChevronUp,
   IconDotsVertical,
 } from 'twenty-ui/icon';
 import { useTheme } from 'twenty-ui/theme-constants';
@@ -31,7 +31,10 @@ type IcehouseMobileRecordHeaderActionsProps = {
 // are loading, which is the `ready` gate those commands wait on. The hook
 // throws without an object name and a record id, so this only mounts on a
 // matched record route, and only on the phone (the header returns null on
-// desktop before rendering it).
+// desktop before rendering it). The chevrons point up and down — the glyphs
+// upstream seeds for these two commands, a view being a vertical list — so
+// "previous record" is not the same left-pointing chevron as the header's
+// back link in the same 52px row.
 export const IcehouseMobileRecordHeaderActions = ({
   objectMetadataItem,
   objectRecordId,
@@ -61,7 +64,7 @@ export const IcehouseMobileRecordHeaderActions = ({
         disabled={isLoadingPagination}
         onClick={navigateToPreviousRecord}
       >
-        <IconChevronLeft size={theme.icon.size.lg} aria-hidden />
+        <IconChevronUp size={theme.icon.size.lg} aria-hidden />
       </button>
       <button
         type="button"
@@ -71,7 +74,7 @@ export const IcehouseMobileRecordHeaderActions = ({
         disabled={isLoadingPagination}
         onClick={navigateToNextRecord}
       >
-        <IconChevronRight size={theme.icon.size.lg} aria-hidden />
+        <IconChevronDown size={theme.icon.size.lg} aria-hidden />
       </button>
       <button
         type="button"

@@ -1,3 +1,4 @@
+import { AppErrorBoundary } from '@/error-handler/components/AppErrorBoundary';
 import { isLayoutCustomizationModeEnabledState } from '@/layout-customization/states/isLayoutCustomizationModeEnabledState';
 import { getObjectNavigationMenuItemComputedLink } from '@/navigation-menu-item/display/object/utils/getObjectNavigationMenuItemComputedLink';
 import { useIsSettingsDrawer } from '@/navigation/hooks/useIsSettingsDrawer';
@@ -17,6 +18,7 @@ import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { CoreObjectNameSingular } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 import {
   IconChevronLeft,
@@ -119,10 +121,13 @@ const mobileHeaderControlClass = css`
 // editable name + pinned commands + "⋮", a second title above the fork's
 // summary card). icehouse.css hides that row through the data-icehouse-page
 // hook here and the data-icehouse hook on PageCardHeader. The record rule is
-// additionally keyed on this header holding the "⋮", so layout-customization
-// mode — where the fork's mobile record page and its summary card stand down
-// — keeps upstream's row and the record actions it carries are not rendered
-// here.
+// additionally keyed on the fork's mobile record page (data-icehouse=
+// "mobile-record", the summary card's owner) being in the DOM, so wherever
+// that page stands down — layout-customization mode, a dashboard (its
+// layoutType is DASHBOARD, not RECORD_PAGE), no page layout resolved yet —
+// upstream's row stays as the only title. In the first two of those cases
+// the record actions are not rendered here either: the row keeps its own
+// "⋮", and doubling it up would gain nothing.
 export const IcehouseMobileHeader = () => {
   const { t } = useLingui();
   const theme = useTheme();
@@ -180,16 +185,41 @@ export const IcehouseMobileHeader = () => {
       ? objectMetadataItem
       : undefined;
 
+  // A dashboard renders under a DASHBOARD layoutType, not RECORD_PAGE
+  // (PageLayoutRecordPageRenderer), so the fork's mobile record page and its
+  // summary card do not take over there: upstream's row stays, "⋮" included.
+  const isDashboardPage =
+    isDefined(objectMetadataItem) &&
+    objectMetadataItem.nameSingular === CoreObjectNameSingular.Dashboard;
+
+  // The header sits inside DefaultLayout's outer boundary (the full-screen
+  // fallback), not the page's, so a throw from the record actions' data hook
+  // is fenced here: the three controls go, the rest of the layout stays, and
+  // the next record remounts them (the key) for another go. Recovery is by
+  // that remount rather than AppErrorBoundary's reset-on-location-change
+  // because the effect behind it lives in a fallback whose element type
+  // AppErrorBoundary recreates on each render, and this header re-renders on
+  // every location change — the effect would be remounted holding the new
+  // location before it could compare, and never fire from here. The inline
+  // fallback is fine for the same reason: it renders nothing and keeps
+  // nothing, so being recreated per render costs nothing.
   const recordHeaderActions =
     page === 'record' &&
     isDefined(objectMetadataItem) &&
     isDefined(objectRecordId) &&
-    !isLayoutCustomizationModeEnabled ? (
-      <IcehouseMobileRecordHeaderActions
-        objectMetadataItem={objectMetadataItem}
-        objectRecordId={objectRecordId}
-        controlClassName={mobileHeaderControlClass}
-      />
+    !isLayoutCustomizationModeEnabled &&
+    !isDashboardPage ? (
+      <AppErrorBoundary
+        key={objectRecordId}
+        resetOnLocationChange={false}
+        FallbackComponent={() => null}
+      >
+        <IcehouseMobileRecordHeaderActions
+          objectMetadataItem={objectMetadataItem}
+          objectRecordId={objectRecordId}
+          controlClassName={mobileHeaderControlClass}
+        />
+      </AppErrorBoundary>
     ) : null;
 
   return (

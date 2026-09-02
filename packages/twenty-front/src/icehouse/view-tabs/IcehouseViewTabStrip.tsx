@@ -364,6 +364,14 @@ export const IcehouseViewTabStrip = () => {
             disabled={!isDefined(currentView)}
             onClick={handleAddView}
           />
+          <OptionsTab
+            label={t`View options`}
+            onClick={() =>
+              toggleDropdown({
+                dropdownComponentInstanceIdFromProps: VIEW_PICKER_DROPDOWN_ID,
+              })
+            }
+          />
         </StyledTabRow>
       </StyledMeasuredRow>
     </StyledStrip>

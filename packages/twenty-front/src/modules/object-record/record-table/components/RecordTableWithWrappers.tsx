@@ -12,6 +12,7 @@ import { PageFocusId } from '@/types/PageFocusId';
 import { useHotkeysOnFocusedElement } from '@/ui/utilities/hotkey/hooks/useHotkeysOnFocusedElement';
 import { ScrollWrapper } from '@/ui/utilities/scroll/components/ScrollWrapper';
 import { styled } from '@linaria/react';
+import { OpenRecordIn } from 'twenty-shared/types';
 
 const StyledRecordTablePrintBoundary = styled.div`
   display: contents;
@@ -57,7 +58,8 @@ export const RecordTableWithWrappers = ({
   const handleRecordIdentifierClick = (rowIndex: number, recordId: string) => {
     activateRecordTableRow(rowIndex);
     unfocusRecordTableRow();
-    openRecordFromIndexView({ recordId });
+    // Icehouse: the name link always opens the record page; the hover arrow keeps the side panel
+    openRecordFromIndexView({ recordId }, OpenRecordIn.RECORD_PAGE);
   };
 
   const { deleteOneRecord } = useDeleteOneRecord({ objectNameSingular });

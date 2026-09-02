@@ -222,6 +222,15 @@ export const useTriggerInitialRecordTableDataLoad = () => {
             verticalScrollInPx: 0,
           });
         }
+      } catch (error) {
+        // Icehouse (perf): upstream emptied the id list before fetching, so a
+        // rejected fetch ended in the empty state; keep that end state rather
+        // than leaving the previous ids as never-resolving skeleton rows.
+        store.set(
+          recordIndexRecordIdsByGroupFamilyState(NO_RECORD_GROUP_FAMILY_KEY),
+          [],
+        );
+        throw error;
       } finally {
         store.set(isInitializingVirtualTableDataLoadingCallbackState, false);
         store.set(isRecordTableInitialLoading, false);

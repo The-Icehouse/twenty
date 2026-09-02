@@ -71,3 +71,12 @@ slices settled on:
 - Typecheck before committing front-end changes: `mise x node@24.16.0 -- npx nx run twenty-front:typecheck` (~46 s).
 
 Docs: `icehouse-crm/docs/TWENTY-THEME-FORK.md`, `icehouse-crm/docs/2026-09-02-hubspot-mechanics-parity-map.md`.
+
+## Rebase notes (files that will conflict on the weekly sync)
+
+- `packages/twenty-front/src/modules/object-record/record-index/components/RecordIndexContainerGater.tsx` — the
+  perf memoisation wraps its three context values in `useMemo`; upstream main (after v2.37.4) has already rewritten
+  this file (`useSetAtomComponentState`, JSX hoisted into an `indexContent` const). Resolution: take upstream's
+  structure, then re-apply the three `useMemo`s around the values it passes to `RecordIndexContext`,
+  `RecordComponentInstanceContextsWrapper` and the field-metadata derived states. The other nine perf files had no
+  upstream changes at the time of writing. Toby's rule (2026-09-03): fixes stay on this branch, no upstream PRs.

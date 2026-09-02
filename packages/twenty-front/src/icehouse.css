@@ -374,3 +374,42 @@ div:has(> [data-icehouse="quick-actions"]) {
 .light [data-icehouse="quick-filters"] button[disabled] {
   color: #b0c1d4;
 }
+
+
+/* ───────────── Record page: HubSpot Activities sub-tabs + "Search activities" (Timeline widget) ─────────────
+   Rendered by ~/icehouse/activities/IcehouseActivitiesTimeline inside the TIMELINE widget, desktop record page
+   and side panel (not mobile). The sub-tabs drive upstream's timeline activity-type filter; the search box
+   narrows the rendered rows client-side. Layout, backgrounds and dark mode come from the components' theme
+   tokens (the sticky toolbar paints background.primary, so it follows the light-mode surface); light mode
+   gets HubSpot's palette here: #516f90 tabs, active #33475b on a 3px #0091ae underline over a #cbd6e2 rule
+   (same as the index view tabs), #cbd6e2 search box with the #0091ae focus ring. */
+.light [data-icehouse="activities"] [data-icehouse-part="sub-tabs"] {
+  border-bottom-color: #cbd6e2;
+}
+.light [data-icehouse="activities"] [data-icehouse-tab] {
+  color: #516f90;
+  font-size: 14px;
+}
+.light [data-icehouse="activities"] [data-icehouse-tab]:hover {
+  color: #33475b;
+}
+.light [data-icehouse="activities"] [data-icehouse-tab][data-active] {
+  border-bottom-color: transparent;
+  box-shadow: inset 0 -3px 0 #0091ae;
+  color: #33475b;
+}
+.light [data-icehouse="activities"] [data-icehouse-part="search"] {
+  border-color: #cbd6e2;
+  border-radius: 3px;
+  color: #7c98b6;
+}
+.light [data-icehouse="activities"] [data-icehouse-part="search"]:focus-within {
+  border-color: #0091ae;
+  box-shadow: 0 0 0 1px #0091ae;
+}
+.light [data-icehouse="activities"] [data-icehouse-part="search"] input {
+  color: #33475b;
+}
+.light [data-icehouse="activities"] [data-icehouse-part="search"] input::placeholder {
+  color: #7c98b6;
+}

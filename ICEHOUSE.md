@@ -47,6 +47,7 @@ slices settled on:
 | Record quick-action row | `icehouse/quick-actions` | `page-layout/components/PageLayoutLeftPanel.tsx` |
 | Table footer + bulk-action bar | `icehouse/footer` | `record-index/components/RecordIndexTableContainer.tsx` |
 | Nav footer light/dark toggle | `icehouse/nav` | `navigation/components/MainNavigationDrawer.tsx` |
+| Stage tracker (chevron pipeline + time in stage; Tier 2) | `icehouse/stage-tracker` | `record-show/components/PageLayoutRecordPageRenderer.tsx` |
 | Name → page / arrow → preview | (upstream hook arg) | `useOpenRecordFromIndexView.ts`, `RecordTableWithWrappers.tsx` |
 | Global top bar (Find or Ask, +, settings, help) — Tier 2 | `icehouse/top-bar` | `ui/layout/page/components/DefaultLayout.tsx` |
 

@@ -413,3 +413,36 @@ div:has(> [data-icehouse="quick-actions"]) {
 .light [data-icehouse="activities"] [data-icehouse-part="search"] input::placeholder {
   color: #7c98b6;
 }
+
+
+/* ============================================================================
+   Stage tracker — HubSpot's chevron pipeline above the record (icehouse/stage-tracker)
+   Structure: [data-icehouse="stage-tracker"] (data-icehouse-variant full|compact)
+     > [data-icehouse-part="stages"] > button[data-icehouse-part="stage"][data-state=done|current|upcoming]
+     > [data-icehouse-part="summary"]  "Stage: X for N days"
+   The current stage keeps its option colour (set as CSS variables in the TSX);
+   only the done/upcoming fills and the summary take HubSpot's light palette.
+   Dark mode uses the theme tokens set in the TSX untouched.
+   ========================================================================== */
+.light [data-icehouse="stage-tracker"] {
+  background: #f4f7fa;
+  border-bottom-color: #cbd6e2;
+}
+.light [data-icehouse="stage-tracker"] [data-icehouse-part="stage"][data-state="done"] {
+  background: #e5f5f8;
+  color: #0091ae;
+}
+.light [data-icehouse="stage-tracker"] [data-icehouse-part="stage"][data-state="upcoming"] {
+  background: #dfe3eb;
+  color: #7c98b6;
+}
+.light [data-icehouse="stage-tracker"] [data-icehouse-part="stage"]:not(:disabled):hover {
+  opacity: 1;
+  filter: brightness(0.96);
+}
+.light [data-icehouse="stage-tracker"] [data-icehouse-part="summary"] {
+  color: #516f90;
+}
+.light [data-icehouse="stage-tracker"] [data-icehouse-part="summary"] span {
+  color: #33475b;
+}

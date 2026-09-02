@@ -23,7 +23,7 @@ import {
   type IcehouseMobileRecordSegmentOption,
 } from '~/icehouse/mobile/IcehouseMobileRecordSegmentedControl';
 import { icehouseMobileRecordSegmentState } from '~/icehouse/mobile/states/icehouseMobileRecordSegmentState';
-import { type IcehouseMobileRecordSegment } from '~/icehouse/mobile/types/IcehouseMobileRecordSegment';
+import { type IcehouseMobileRecordSegmentSelection } from '~/icehouse/mobile/types/IcehouseMobileRecordSegment';
 import { IcehouseQuickActionRow } from '~/icehouse/quick-actions/IcehouseQuickActionRow';
 import { IcehouseStageTracker } from '~/icehouse/stage-tracker/IcehouseStageTracker';
 
@@ -36,16 +36,19 @@ import { IcehouseStageTracker } from '~/icehouse/stage-tracker/IcehouseStageTrac
 //   header card (upstream SummaryCard: avatar, name, "Added …")
 //   quick-action row (Note · Email · Call · Task · Meeting · File · More)
 //   stage tracker, compact variant, when the object has a stage field
-//   About · Activities · Related segments
+//   About · Activities · Related · More segments
 //   the face the segment selects
 //
 // About and Activities are upstream's own tabs (the pinned FIELDS tab and
 // the TIMELINE tab), rendered by the very PageLayoutRenderer this component
 // wraps: its tab list is hidden with CSS and the segments write the tab list's
 // activeTabIdComponentState instead, so widgets, scroll reset and the fork's
-// Activities sub-tabs all keep working as upstream built them. Related is the
-// fork's association cards stacked full width. The chosen segment is kept per
-// browser session (never in the URL).
+// Activities sub-tabs all keep working as upstream built them. More is the
+// rest of the layout's tabs (Tasks, Notes, Files, Emails, Calendar, custom)
+// behind a picker; a picked tab goes through the same state, so it renders
+// through the same path. Related is the fork's association cards stacked full
+// width. The chosen segment (and picked tab) is kept per browser session
+// (never in the URL).
 //
 // The one thing that can overrule a segment is upstream's tab hash: on the
 // record page PageLayoutTabList navigates to `#<tabId>` and
@@ -53,7 +56,8 @@ import { IcehouseStageTracker } from '~/icehouse/stage-tracker/IcehouseStageTrac
 // A hash naming a different tab of this layout (a deep link, or a tab clicked
 // on desktop before the window shrank) is therefore left in charge until a
 // segment is tapped, at which point the hash is replaced — not pushed — with
-// the segment's tab so the two agree again.
+// the segment's tab so the two agree again. A hash naming one of the extra
+// tabs lights the More segment with that tab's title.
 
 const StyledPage = styled.div`
   background: ${themeCssVariables.background.primary};
@@ -115,7 +119,7 @@ const IcehouseMobileRecordPageContent = ({
     tabListInstanceId,
   );
 
-  const { isPageLayoutLoaded, aboutTabId, activitiesTabId, tabIds } =
+  const { isPageLayoutLoaded, aboutTabId, activitiesTabId, extraTabs, tabIds } =
     useIcehouseMobileRecordTabs({ pageLayoutId });
 
   const { objectMetadataItem } = useObjectMetadataItem({
@@ -130,6 +134,7 @@ const IcehouseMobileRecordPageContent = ({
   // Until the layout is in the store every face is offered, so the control
   // does not reflow the moment the layout lands.
   const hasActivities = !isPageLayoutLoaded || isDefined(activitiesTabId);
+  const hasMoreTabs = !isPageLayoutLoaded || extraTabs.length > 0;
 
   const segments: IcehouseMobileRecordSegmentOption[] = [
     { id: 'about', label: t`About` },
@@ -139,31 +144,44 @@ const IcehouseMobileRecordPageContent = ({
     ...(hasAssociations ? [{ id: 'related' as const, label: t`Related` }] : []),
   ];
 
-  const segment: IcehouseMobileRecordSegment = segments.some(
-    (option) => option.id === icehouseMobileRecordSegment,
-  )
-    ? icehouseMobileRecordSegment
-    : 'about';
+  // The remembered selection, or About when this record's layout cannot
+  // honour it (a picked More tab is a tab id of one object's layout).
+  const isStoredSelectionAvailable =
+    icehouseMobileRecordSegment.segment === 'more'
+      ? !isPageLayoutLoaded ||
+        extraTabs.some((tab) => tab.id === icehouseMobileRecordSegment.tabId)
+      : segments.some(
+          (option) => option.id === icehouseMobileRecordSegment.segment,
+        );
 
-  const getTabIdForSegment = (
-    candidate: IcehouseMobileRecordSegment,
+  const selection: IcehouseMobileRecordSegmentSelection =
+    isStoredSelectionAvailable
+      ? icehouseMobileRecordSegment
+      : { segment: 'about' };
+
+  const getTabIdForSelection = (
+    candidate: IcehouseMobileRecordSegmentSelection,
   ): string | undefined =>
-    candidate === 'about'
-      ? aboutTabId
-      : candidate === 'activities'
-        ? activitiesTabId
-        : undefined;
+    candidate.segment === 'more'
+      ? candidate.tabId
+      : candidate.segment === 'about'
+        ? aboutTabId
+        : candidate.segment === 'activities'
+          ? activitiesTabId
+          : undefined;
 
-  const getSegmentForTabId = (
+  const getSelectionForTabId = (
     tabId: string,
-  ): IcehouseMobileRecordSegment | undefined =>
+  ): IcehouseMobileRecordSegmentSelection | undefined =>
     tabId === aboutTabId
-      ? 'about'
+      ? { segment: 'about' }
       : tabId === activitiesTabId
-        ? 'activities'
-        : undefined;
+        ? { segment: 'activities' }
+        : extraTabs.some((tab) => tab.id === tabId)
+          ? { segment: 'more', tabId }
+          : undefined;
 
-  const preferredTabId = getTabIdForSegment(segment);
+  const preferredTabId = getTabIdForSelection(selection);
 
   const hashTabId = location.hash.replace('#', '');
 
@@ -185,10 +203,12 @@ const IcehouseMobileRecordPageContent = ({
     setActiveTabId(preferredTabId);
   }, [preferredTabId, isHashInCharge, activeTabId, setActiveTabId]);
 
-  const handleSegmentChange = (nextSegment: IcehouseMobileRecordSegment) => {
-    setIcehouseMobileRecordSegment(nextSegment);
+  const handleSegmentChange = (
+    nextSelection: IcehouseMobileRecordSegmentSelection,
+  ) => {
+    setIcehouseMobileRecordSegment(nextSelection);
 
-    const nextTabId = getTabIdForSegment(nextSegment);
+    const nextTabId = getTabIdForSelection(nextSelection);
 
     if (isDefined(nextTabId) && hashTabId !== '' && hashTabId !== nextTabId) {
       navigate(
@@ -202,9 +222,16 @@ const IcehouseMobileRecordPageContent = ({
     }
   };
 
-  const activeSegment = isHashInCharge
-    ? getSegmentForTabId(hashTabId)
-    : segment;
+  const activeSelection = isHashInCharge
+    ? getSelectionForTabId(hashTabId)
+    : selection;
+
+  const activeSegment = activeSelection?.segment;
+
+  const activeMoreTab =
+    activeSelection?.segment === 'more'
+      ? extraTabs.find((tab) => tab.id === activeSelection.tabId)
+      : undefined;
 
   const isRelatedOpen = activeSegment === 'related';
 
@@ -230,7 +257,10 @@ const IcehouseMobileRecordPageContent = ({
       />
       <IcehouseMobileRecordSegmentedControl
         segments={segments}
+        isMoreSegmentShown={hasMoreTabs}
+        moreTabs={extraTabs}
         activeSegment={activeSegment}
+        activeMoreTab={activeMoreTab}
         onSegmentChange={handleSegmentChange}
       />
       <StyledLayoutPane data-icehouse-part="layout" hidden={isRelatedOpen}>

@@ -1,12 +1,28 @@
+import { Dropdown } from '@/ui/layout/dropdown/components/Dropdown';
+import { DROPDOWN_OFFSET_Y } from '@/ui/layout/dropdown/constants/DropdownOffsetY';
 import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
-import { themeCssVariables } from 'twenty-ui/theme-constants';
-import { type IcehouseMobileRecordSegment } from '~/icehouse/mobile/types/IcehouseMobileRecordSegment';
+import { IconChevronDown } from 'twenty-ui/icon';
+import { themeCssVariables, useTheme } from 'twenty-ui/theme-constants';
+import { ICEHOUSE_MOBILE_RECORD_MORE_DROPDOWN_ID } from '~/icehouse/mobile/constants/IcehouseMobileRecordMoreDropdownId';
+import { IcehouseMobileRecordMorePicker } from '~/icehouse/mobile/IcehouseMobileRecordMorePicker';
+import {
+  type IcehouseMobileRecordExtraTab,
+  type IcehouseMobileRecordSegment,
+  type IcehouseMobileRecordSegmentSelection,
+} from '~/icehouse/mobile/types/IcehouseMobileRecordSegment';
 
-// The phone record page's segmented control: About · Activities · Related as
-// equal-width 44px tabs on one underline, the way HubSpot's app switches
-// between a record's faces. Pure presentation: the page decides which
-// segments exist and which one is on, and reacts to the tap.
+// The phone record page's segmented control: About · Activities · Related ·
+// More as equal-width 44px tabs on one underline, the way HubSpot's app
+// switches between a record's faces. Pure presentation: the page decides
+// which segments exist and which one is on, and reacts to the tap.
+//
+// More is upstream's Dropdown anchored to its own segment: tapping it opens a
+// picker of the layout's remaining tabs (IcehouseMobileRecordMorePicker); once
+// a tab is picked the segment shows that tab's title with a chevron and is
+// marked active, and tapping it again re-opens the picker. Upstream's Dropdown
+// wraps its clickable in a div (role=button, aria-haspopup); StyledSegments
+// sizes that wrapper as one more segment cell so the button fills it.
 //
 // Stable CSS hooks: the row carries data-icehouse-part="segments"; each
 // button data-icehouse-part="segment", data-icehouse-segment (its id) and
@@ -21,6 +37,12 @@ const StyledSegments = styled.div`
   flex-shrink: 0;
   user-select: none;
   width: 100%;
+
+  & > [role='button'][aria-haspopup] {
+    display: flex;
+    flex: 1 1 0;
+    min-width: 0;
+  }
 `;
 
 const StyledSegment = styled.button`
@@ -36,12 +58,12 @@ const StyledSegment = styled.button`
   font-family: inherit;
   font-size: ${themeCssVariables.font.size.md};
   font-weight: ${themeCssVariables.font.weight.medium};
+  gap: ${themeCssVariables.spacing[1]};
   height: 44px;
   justify-content: center;
   min-width: 0;
   overflow: hidden;
   padding: 0 ${themeCssVariables.spacing[2]};
-  text-overflow: ellipsis;
   white-space: nowrap;
 
   &:focus-visible {
@@ -55,23 +77,39 @@ const StyledSegment = styled.button`
   }
 `;
 
+const StyledSegmentLabel = styled.span`
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
 export type IcehouseMobileRecordSegmentOption = {
-  id: IcehouseMobileRecordSegment;
+  id: Exclude<IcehouseMobileRecordSegment, 'more'>;
   label: string;
 };
 
 type IcehouseMobileRecordSegmentedControlProps = {
   segments: IcehouseMobileRecordSegmentOption[];
+  isMoreSegmentShown: boolean;
+  moreTabs: IcehouseMobileRecordExtraTab[];
   activeSegment: IcehouseMobileRecordSegment | undefined;
-  onSegmentChange: (segment: IcehouseMobileRecordSegment) => void;
+  activeMoreTab: IcehouseMobileRecordExtraTab | undefined;
+  onSegmentChange: (selection: IcehouseMobileRecordSegmentSelection) => void;
 };
 
 export const IcehouseMobileRecordSegmentedControl = ({
   segments,
+  isMoreSegmentShown,
+  moreTabs,
   activeSegment,
+  activeMoreTab,
   onSegmentChange,
 }: IcehouseMobileRecordSegmentedControlProps) => {
   const { t } = useLingui();
+  const theme = useTheme();
+
+  const isMoreActive = activeSegment === 'more';
 
   return (
     <StyledSegments
@@ -91,12 +129,41 @@ export const IcehouseMobileRecordSegmentedControl = ({
             data-icehouse-part="segment"
             data-icehouse-segment={segment.id}
             data-active={isActive || undefined}
-            onClick={() => onSegmentChange(segment.id)}
+            onClick={() => onSegmentChange({ segment: segment.id })}
           >
-            {segment.label}
+            <StyledSegmentLabel>{segment.label}</StyledSegmentLabel>
           </StyledSegment>
         );
       })}
+      {isMoreSegmentShown && (
+        <Dropdown
+          dropdownId={ICEHOUSE_MOBILE_RECORD_MORE_DROPDOWN_ID}
+          dropdownPlacement="bottom-end"
+          dropdownOffset={{ y: DROPDOWN_OFFSET_Y }}
+          clickableComponent={
+            <StyledSegment
+              type="button"
+              role="tab"
+              aria-selected={isMoreActive}
+              data-icehouse-part="segment"
+              data-icehouse-segment="more"
+              data-active={isMoreActive || undefined}
+            >
+              <StyledSegmentLabel>
+                {activeMoreTab?.title ?? t`More`}
+              </StyledSegmentLabel>
+              <IconChevronDown size={theme.icon.size.sm} aria-hidden />
+            </StyledSegment>
+          }
+          dropdownComponents={
+            <IcehouseMobileRecordMorePicker
+              tabs={moreTabs}
+              activeTabId={activeMoreTab?.id}
+              onPick={(tabId) => onSegmentChange({ segment: 'more', tabId })}
+            />
+          }
+        />
+      )}
     </StyledSegments>
   );
 };

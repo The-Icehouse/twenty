@@ -808,3 +808,37 @@ div:has(> [data-icehouse="quick-actions"]) {
     display: none;
   }
 }
+
+
+
+/* ───────────── mobile-record-more: the phone record page's More segment (icehouse/mobile) ───────────── */
+/* Rendered by ~/icehouse/mobile/IcehouseMobileRecordSegmentedControl on the phone record page only
+   (same gate as mobile-record above): a fourth segment for the layout's remaining tabs (Tasks, Notes,
+   Files, Emails, Calendar, custom ones), present when the layout has any. The segment is upstream's
+   Dropdown anchored to its own button, so the anchor is upstream's clickable wrapper (role=button,
+   aria-haspopup; the TSX sizes it as a segment cell) and the menu is portalled to the body, outside
+   [data-icehouse="mobile-record"]:
+     [data-icehouse-part="segments"] > [role="button"][aria-haspopup]
+       > button[data-icehouse-part="segment"][data-icehouse-segment="more"][data-active]
+     [data-icehouse-part="more-picker"] > upstream DropdownMenuItemsContainer
+       > [data-icehouse-part="more-item"][data-icehouse-tab][data-active] > upstream MenuItem
+   The segment button itself is painted by the mobile-record rules (same data-icehouse-part="segment").
+   Geometry first, both modes: 44px rows and 16px text (the MenuItem label reads the --t-font-size-md
+   token, so the token is re-set on the row rather than the label's hashed class targeted). Then
+   HubSpot's light palette: #33475b rows, the showing tab on the #e5f5f8 tint in #0091ae. */
+@media (max-width: 768px) {
+  [data-icehouse-part="more-picker"] [data-icehouse-part="more-item"] {
+    --t-font-size-md: 16px;
+  }
+  [data-icehouse-part="more-picker"] [data-icehouse-part="more-item"] > * {
+    box-sizing: border-box;
+    min-height: 44px;
+  }
+  .light [data-icehouse-part="more-picker"] [data-icehouse-part="more-item"] > * {
+    color: #33475b;
+  }
+  .light [data-icehouse-part="more-picker"] [data-icehouse-part="more-item"][data-active] > * {
+    background: #e5f5f8;
+    color: #0091ae;
+  }
+}

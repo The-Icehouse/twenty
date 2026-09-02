@@ -11,6 +11,7 @@ import { useTargetRecord } from '@/ui/layout/contexts/useTargetRecord';
 import { ScrollWrapper } from '@/ui/utilities/scroll/components/ScrollWrapper';
 import { styled } from '@linaria/react';
 import { PageLayoutType } from '~/generated-metadata/graphql';
+import { IcehouseQuickActionRow } from '~/icehouse/quick-actions/IcehouseQuickActionRow';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
 
 const StyledContainer = styled.div`
@@ -76,6 +77,7 @@ export const PageLayoutLeftPanel = ({
         objectRecordId={targetRecordIdentifier.id}
         isInSidePanel={isInSidePanel}
       />
+      <IcehouseQuickActionRow />
 
       <PageLayoutContentProvider
         value={{

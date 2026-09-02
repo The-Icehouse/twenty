@@ -13,6 +13,10 @@ jest.mock('@/object-record/record-show/components/SummaryCard', () => ({
   SummaryCard: () => null,
 }));
 
+jest.mock('~/icehouse/quick-actions/IcehouseQuickActionRow', () => ({
+  IcehouseQuickActionRow: () => null,
+}));
+
 jest.mock('@/page-layout/components/PageLayoutContent', () => ({
   PageLayoutContent: () => <div>Page layout content</div>,
 }));

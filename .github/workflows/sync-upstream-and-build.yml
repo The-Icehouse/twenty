@@ -202,7 +202,8 @@ jobs:
             echo '```'
             echo "Built by run ${{ github.run_id }}. The job never deploys."
           } > /tmp/notes.md
-          gh release create "$NAME" --target "$GITHUB_SHA" --title "Icehouse build $TAGSAFE ($(TZ=Pacific/Auckland date +%Y-%m-%d))" --notes-file /tmp/notes.md --latest
+          # on a fork checkout gh defaults to the PARENT repo (twentyhq/twenty → 403); pin ours
+          gh release create "$NAME" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "Icehouse build $TAGSAFE ($(TZ=Pacific/Auckland date +%Y-%m-%d))" --notes-file /tmp/notes.md --latest
 
       - name: Notify (optional — only if a webhook is configured)
         if: always() && env.WEBHOOK_URL != ''

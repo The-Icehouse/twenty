@@ -44,7 +44,7 @@ export const useOpenRecordFromIndexView = () => {
   const store = useStore();
 
   const openRecordFromIndexView = useCallback(
-    ({ recordId }: { recordId: string }) => {
+    ({ recordId }: { recordId: string }, targetOpenRecordIn = openRecordIn) => {
       const parentViewFilters = store.get(currentRecordFilters);
 
       const parentViewSorts = store.get(currentRecordSorts);
@@ -64,7 +64,7 @@ export const useOpenRecordFromIndexView = () => {
         },
       );
 
-      if (openRecordIn === OpenRecordIn.SIDE_PANEL) {
+      if (targetOpenRecordIn === OpenRecordIn.SIDE_PANEL) {
         openRecordInSidePanel({
           recordId,
           objectNameSingular,

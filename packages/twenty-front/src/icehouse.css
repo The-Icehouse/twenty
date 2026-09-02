@@ -149,3 +149,26 @@ div:has(> [data-icehouse="quick-actions"]) {
 .light [data-icehouse="quick-actions"] [data-icehouse-part="label"] {
   color: #0091ae;
 }
+
+/* ───────────── Index page footer + bulk-action bar: HubSpot's table chrome ───────────── */
+/* TSX paints these with theme tokens (so dark mode is right by default); light mode gets
+   HubSpot's white bar, #cbd6e2 hairline, #eaf0f6/#33475b count badge and 3px radii. */
+.light [data-icehouse="table-footer"] {
+  background: #ffffff;
+  border-top-color: #cbd6e2;
+}
+.light [data-icehouse="table-footer"] [data-icehouse="record-count"] {
+  background: #eaf0f6;
+  border-radius: 3px;
+  color: #33475b;
+}
+.light [data-icehouse="table-footer"] button,
+.light [data-icehouse="bulk-bar"] button {
+  border-radius: 3px;
+}
+.light [data-icehouse="bulk-bar"] {
+  background: #ffffff;
+  border-color: #cbd6e2;
+  border-radius: 3px;
+  box-shadow: 0 2px 8px 0 rgba(45, 62, 80, 0.16);
+}

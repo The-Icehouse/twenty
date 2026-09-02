@@ -171,6 +171,8 @@ div:has(> [data-icehouse="quick-actions"]) {
   border-color: #cbd6e2;
   border-radius: 3px;
   box-shadow: 0 2px 8px 0 rgba(45, 62, 80, 0.16);
+}
+
 /* ───────────── Index toolbar: HubSpot's search / Filter / Sort row ───────────── */
 /* Rendered by src/icehouse/toolbar/IcehouseIndexToolbar.tsx (desktop only). Filter and Sort
    are upstream's own buttons, so they are reached by position under the hook, never by class.

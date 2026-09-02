@@ -42,7 +42,7 @@ const StyledRow = styled.div`
   box-sizing: border-box;
   display: flex;
   flex-wrap: wrap;
-  gap: ${themeCssVariables.spacing[3]};
+  gap: ${themeCssVariables.spacing[1]};
   justify-content: center;
   padding: ${themeCssVariables.spacing[3]} ${themeCssVariables.spacing[4]};
 `;
@@ -52,7 +52,7 @@ const StyledAction = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${themeCssVariables.spacing[1]};
-  min-width: 44px;
+  min-width: 40px;
 `;
 
 // StyledActionButton and StyledActionLink carry the same surface: Linaria's

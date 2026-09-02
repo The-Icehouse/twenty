@@ -8,7 +8,10 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 export PREVIEW_IMAGE="${2:-ghcr.io/the-icehouse/twenty:latest}"
-export PREVIEW_APP_SECRET="${PREVIEW_APP_SECRET:-$(head -c 32 /dev/urandom | base64 | tr -d '\n=+/')}"
+# a stable secret per machine, or every 'update' would invalidate the preview login
+SECRET_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/twenty-preview.secret"
+[ -s "$SECRET_FILE" ] || { mkdir -p "$(dirname "$SECRET_FILE")"; head -c 32 /dev/urandom | base64 | tr -d '\n=+/' > "$SECRET_FILE"; chmod 600 "$SECRET_FILE"; }
+export PREVIEW_APP_SECRET="${PREVIEW_APP_SECRET:-$(cat "$SECRET_FILE")}"
 COMPOSE=(docker compose -p twenty-preview -f scripts/local-preview.compose.yml)
 case "${1:-up}" in
   up)

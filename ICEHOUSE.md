@@ -56,6 +56,8 @@ slices settled on:
 
 ## What lives where
 
+- `packages/twenty-ui/src/data-display/Avatar/internal/avatarImageStatusStore.ts` — one image probe per URL, shared across mounts; failed `twenty-icons.com` logos remembered in localStorage (30 days). Rows are recycled by the virtualiser, so anything keyed on mount alone never worked.
+
 - `theme/hubspot.json` + `scripts/apply-theme.mjs` — the colour/typography layer (mirrors `packages/twenty-ui/dist`).
 - `packages/twenty-front/src/icehouse.css` — every fork style rule, scoped to stable hooks (`data-icehouse`, `data-testid`, ids).
 - Upstream components carry only one-line `data-icehouse="…"` hooks. Never target Emotion's hashed class names.

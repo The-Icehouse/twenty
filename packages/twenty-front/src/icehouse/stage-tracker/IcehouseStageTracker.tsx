@@ -30,13 +30,16 @@ import { capitalize, isDefined } from 'twenty-shared/utils';
 import { AppTooltip, TooltipDelay } from 'twenty-ui/surfaces';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
 import { FieldMetadataType, ViewType } from '~/generated-metadata/graphql';
+import { useIsIcehouseMobileRecordPage } from '~/icehouse/mobile/hooks/useIsIcehouseMobileRecordPage';
 
 // HubSpot's "Lead stage tracker": a chevron pipeline of the object's stage
 // options across the top of the record, the current stage in its own colour,
 // and "Stage: Qualified for 3 days" underneath. Mounted once in
 // PageLayoutRecordPageRenderer, so it renders on the full record page and in
 // the side panel preview alike (the side panel and mobile get the compact
-// variant: bare chevrons with tooltips, no labels).
+// variant: bare chevrons with tooltips, no labels). On the phone the mobile
+// record page places the tracker itself, under the quick actions, so the
+// renderer's mount stands down there (isInMobileRecordPage tells them apart).
 //
 // The stage field is whatever the object's kanban view groups by
 // (View.mainGroupByFieldMetadataId), so a Leads board grouped by "Lead stage"
@@ -532,11 +535,16 @@ const IcehouseStageTrackerContent = ({
 export const IcehouseStageTracker = ({
   targetRecordIdentifier,
   isInSidePanel,
+  isInMobileRecordPage = false,
 }: {
   targetRecordIdentifier: TargetRecordIdentifier;
   isInSidePanel: boolean;
+  isInMobileRecordPage?: boolean;
 }) => {
   const isMobile = useIsMobile();
+  const isIcehouseMobileRecordPage = useIsIcehouseMobileRecordPage({
+    isInSidePanel,
+  });
 
   const { objectMetadataItem } = useObjectMetadataItem({
     objectNameSingular: targetRecordIdentifier.targetObjectNameSingular,
@@ -551,6 +559,10 @@ export const IcehouseStageTracker = ({
     objectMetadataItem,
     views,
   );
+
+  if (isIcehouseMobileRecordPage && !isInMobileRecordPage) {
+    return null;
+  }
 
   if (!isDefined(stageFieldMetadataItem)) {
     return null;

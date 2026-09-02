@@ -562,3 +562,81 @@ div:has(> [data-icehouse="quick-actions"]) {
     display: none;
   }
 }
+
+
+/* ───────────── mobile-record: HubSpot's phone record page (icehouse/mobile) ───────────── */
+/* Rendered by ~/icehouse/mobile/IcehouseMobileRecordPage on the phone record page only (useIsMobile,
+   not the side panel, not while the layout is being edited), wrapping upstream's PageLayoutRenderer.
+   Structure:
+     [data-icehouse="mobile-record"][data-icehouse-active-segment=about|activities|related]
+       > [data-icehouse-part="header"]  upstream SummaryCard
+       > [data-icehouse-part="actions"] > [data-icehouse="quick-actions"]
+       > [data-icehouse="stage-tracker"][data-icehouse-variant="compact"]
+       > [data-icehouse-part="segments"] > button[data-icehouse-part="segment"][data-icehouse-segment][data-active]
+       > [data-icehouse-part="layout"]  upstream page layout; its tab list is hidden, the segments drive it
+       > [data-icehouse-part="related"] > [data-icehouse="associations"][data-icehouse-variant="stack"]
+   Geometry first, both modes: the upstream tab list gives way to the segments, 44px touch targets,
+   16px text in inputs (below that iOS zooms the page on focus), no horizontal overflow. Then HubSpot's
+   light palette; dark mode keeps the theme tokens set in the TSX. */
+[data-icehouse="mobile-record"] .page-layout-tab-list-print-hidden {
+  display: none;
+}
+[data-icehouse="mobile-record"] [data-icehouse-part="segment"] {
+  font-size: 16px;
+  min-height: 44px;
+}
+[data-icehouse="mobile-record"] [data-icehouse="quick-actions"] {
+  flex-wrap: nowrap;
+  gap: 4px;
+  justify-content: space-between;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+[data-icehouse="mobile-record"] [data-icehouse="quick-actions"]::-webkit-scrollbar {
+  display: none;
+}
+[data-icehouse="mobile-record"] [data-icehouse="quick-actions"] [data-icehouse-part="button"] {
+  height: 44px;
+  width: 44px;
+}
+[data-icehouse="mobile-record"] [data-icehouse="quick-actions"] [data-icehouse-part="label"] {
+  font-size: 12px;
+}
+/* the compact chevrons are 12px tall for the side panel; a thumb needs more */
+[data-icehouse="mobile-record"] [data-icehouse="stage-tracker"] [data-icehouse-part="stage"] {
+  height: 24px;
+}
+[data-icehouse="mobile-record"] [data-icehouse="stage-tracker"] [data-icehouse-part="summary"] {
+  font-size: 14px;
+}
+/* the `stack` variant is the Related segment: undo the <1280px hide from associations-responsive */
+[data-icehouse="mobile-record"] [data-icehouse="associations"][data-icehouse-variant="stack"] {
+  display: flex;
+}
+[data-icehouse="mobile-record"] [data-icehouse="activities"] [data-icehouse-tab] {
+  font-size: 16px;
+  min-height: 44px;
+}
+[data-icehouse="mobile-record"] [data-icehouse="activities"] [data-icehouse-part="search"] {
+  height: 44px;
+}
+[data-icehouse="mobile-record"] input,
+[data-icehouse="mobile-record"] textarea {
+  font-size: 16px;
+}
+
+.light [data-icehouse="mobile-record"] [data-icehouse-part="segments"] {
+  background: #ffffff;
+  border-bottom-color: #cbd6e2;
+}
+.light [data-icehouse="mobile-record"] [data-icehouse-part="segment"] {
+  color: #516f90;
+}
+.light [data-icehouse="mobile-record"] [data-icehouse-part="segment"][data-active] {
+  border-bottom-color: transparent;
+  box-shadow: inset 0 -3px 0 #0091ae;
+  color: #33475b;
+}
+.light [data-icehouse="mobile-record"] [data-icehouse-part="related"] {
+  background: #f5f8fa;
+}

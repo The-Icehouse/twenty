@@ -27,8 +27,10 @@ import { FieldMetadataType } from '~/generated-metadata/graphql';
 
 // HubSpot's record-page quick-action row: Note · Email · Call · Task · Meeting
 // (· File) · More, rendered as icon-above-label round buttons directly under
-// the summary card. Desktop record page only: the side panel already carries
-// pinned actions in its footer, and the left panel does not exist on mobile.
+// the summary card. Desktop record page, and the phone when
+// IcehouseMobileRecordPage mounts it (isInMobileRecordPage): the side panel
+// already carries pinned actions in its footer, and outside the mobile page
+// the left panel does not exist on mobile.
 //
 // Buttons come from upstream's related-record bindings (create-note,
 // compose-email, create-task, create-calendar-event, attach-file), so their
@@ -340,11 +342,17 @@ const IcehouseQuickActionRowContent = () => {
   );
 };
 
-export const IcehouseQuickActionRow = () => {
+type IcehouseQuickActionRowProps = {
+  isInMobileRecordPage?: boolean;
+};
+
+export const IcehouseQuickActionRow = ({
+  isInMobileRecordPage = false,
+}: IcehouseQuickActionRowProps) => {
   const { isInSidePanel } = useLayoutRenderingContext();
   const isMobile = useIsMobile();
 
-  if (isInSidePanel || isMobile) {
+  if (isInSidePanel || (isMobile && !isInMobileRecordPage)) {
     return null;
   }
 

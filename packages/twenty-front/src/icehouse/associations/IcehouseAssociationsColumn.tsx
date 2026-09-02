@@ -8,8 +8,10 @@ import { IcehouseAssociationCard } from '~/icehouse/associations/IcehouseAssocia
 
 // HubSpot's right-hand record column: one association card per relation
 // field of the object, in a scrolling 320px column beside the tabs. Rendered
-// by IcehouseRecordColumns on the desktop record page only; the object's own
-// relation metadata decides which cards exist, so nothing here is per-object.
+// by IcehouseRecordColumns on the desktop record page, and as the full-width
+// `stack` variant by IcehouseMobileRecordPage's Related segment; the object's
+// own relation metadata decides which cards exist, so nothing here is
+// per-object.
 
 const StyledColumn = styled.aside`
   border-left: 1px solid ${themeCssVariables.border.color.medium};
@@ -22,12 +24,26 @@ const StyledColumn = styled.aside`
   padding: ${themeCssVariables.spacing[3]};
   width: 320px;
 
+  &[data-icehouse-variant='stack'] {
+    border-left: none;
+    padding-bottom: calc(
+      ${themeCssVariables.spacing[20]} + env(safe-area-inset-bottom, 0px)
+    );
+    width: 100%;
+  }
+
   @media print {
     display: none;
   }
 `;
 
-export const IcehouseAssociationsColumn = () => {
+type IcehouseAssociationsColumnProps = {
+  variant?: 'column' | 'stack';
+};
+
+export const IcehouseAssociationsColumn = ({
+  variant = 'column',
+}: IcehouseAssociationsColumnProps) => {
   const targetRecord = useTargetRecord();
 
   const { objectMetadataItem } = useObjectMetadataItem({
@@ -45,7 +61,7 @@ export const IcehouseAssociationsColumn = () => {
   }
 
   return (
-    <StyledColumn data-icehouse="associations">
+    <StyledColumn data-icehouse="associations" data-icehouse-variant={variant}>
       {associations.map((association) => (
         <IcehouseAssociationCard
           key={association.key}

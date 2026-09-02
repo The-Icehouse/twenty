@@ -54,6 +54,7 @@ slices settled on:
 | Activities sub-tabs + search (Tier 2) | `icehouse/activities` | `activities/timeline-activities/components/TimelineCard.tsx` |
 | Association cards column (Tier 2) | `icehouse/associations` | `record-show/components/PageLayoutRecordPageRenderer.tsx` (wraps `PageLayoutRenderer`) |
 | Mobile tab bar + slim mobile header (mobile tier) | `icehouse/mobile` | `ui/layout/page/components/DefaultLayout.tsx` (replaces the `MobileNavigationBar` line); `data-icehouse` hook on `ui/layout/page/components/PageCardHeader.tsx` |
+| Phone record page: header card, quick actions, compact tracker, About · Activities · Related (Mobile tier) | `icehouse/mobile` | `record-show/components/PageLayoutRecordPageRenderer.tsx` (wraps the `IcehouseRecordColumns` wrap; hides upstream's tab list with CSS and drives `activeTabIdComponentState`) |
 
 ## What lives where
 

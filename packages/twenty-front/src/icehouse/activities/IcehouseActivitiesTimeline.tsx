@@ -39,9 +39,8 @@ import { IcehouseActivitiesSubTabs } from '~/icehouse/activities/IcehouseActivit
 // is purely client-side over the pages already loaded (the fetch-more loader
 // below keeps paging while a match is scarce, exactly as when scrolling).
 //
-// Desktop record page and side panel (the tab row scrolls, the search box goes
-// full width). On mobile the toolbar is skipped and EventList renders as
-// upstream ships it.
+// Desktop record page, side panel and the phone record page (the tab row
+// scrolls; the search box goes full width in the two narrow contexts).
 //
 // Not here: "Collapse all / Expand all". Each row's open state is a useState
 // inside EventRowDynamicComponent / EventRowGenericLinked /
@@ -157,15 +156,7 @@ export const IcehouseActivitiesTimeline = ({
     ],
   );
 
-  if (isMobile) {
-    return (
-      <EventList
-        targetableObject={targetableObject}
-        title={title}
-        events={events}
-      />
-    );
-  }
+  const isNarrow = isInSidePanel || isMobile;
 
   const searchTerms = getIcehouseActivitySearchTerms(searchValue);
   const isSearching = searchTerms.length > 0;
@@ -180,14 +171,16 @@ export const IcehouseActivitiesTimeline = ({
     <>
       <StyledToolbar
         data-icehouse="activities"
-        data-icehouse-context={isInSidePanel ? 'side-panel' : 'page'}
+        data-icehouse-context={
+          isInSidePanel ? 'side-panel' : isMobile ? 'mobile' : 'page'
+        }
       >
         <IcehouseActivitiesSubTabs targetRecordId={targetableObject.id} />
         <StyledSearchRow data-icehouse-part="search-row">
           <IcehouseActivitiesSearchInput
             value={searchValue}
             onChange={setSearchValue}
-            fullWidth={isInSidePanel}
+            fullWidth={isNarrow}
           />
         </StyledSearchRow>
       </StyledToolbar>

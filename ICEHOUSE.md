@@ -6,8 +6,10 @@ Programme rules live in `~/Projects/icehouse-crm/AGENTS.md` — read them first.
 
 ## Coordination — one driver at a time
 
-Several agents (Claude Code, Codex) have access to this repo AND to the production VM. On 2026-09-02 two
-agents deployed the same image 90 seconds apart without knowing about each other. Rules:
+Several agents (Claude Code, Codex) have access to this repo AND to the production VM. On 2026-09-02 a
+deploy and a commit went unrecorded when the operator's connection dropped mid-turn; the same session then
+re-deployed the same image 90 seconds later believing another agent had acted. Nothing broke, but with two
+different images that is a production collision, so the rules stand:
 
 - **Before deploying**: `ssh -i ~/.ssh/icehouse-crm-eval -o IdentitiesOnly=yes claude@192.168.1.17 '~/bin/agent-lock status'`.
   `scripts/deploy-to-vm.sh` takes the lock itself; if it is held, stop and ask Toby.

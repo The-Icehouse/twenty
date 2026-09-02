@@ -14,6 +14,9 @@ import { isDefined } from '@ui/utilities/utils/isDefined';
 
 import styles from './Avatar.module.scss';
 
+// Icehouse fork: session-wide negative cache of avatar image URLs that failed to load.
+const erroredAvatarImageURIs = new Set<string>();
+
 export type AvatarProps = {
   avatarUrl?: string | null;
   className?: string;
@@ -47,9 +50,16 @@ export const Avatar = ({
 }: AvatarProps) => {
   const theme = useTheme();
 
+  // Icehouse fork: remember failed image URLs for the whole session. Company logos come from
+  // twenty-icons.com and 404 for many domains; without this every re-render of every row
+  // re-requested the same broken URL (≈40 failed requests per table paint).
   const [erroredAvatarImageURI, setErroredAvatarImageURI] = useState<
     string | null
-  >(null);
+  >(() =>
+    isNonEmptyString(avatarUrl) && erroredAvatarImageURIs.has(avatarUrl)
+      ? avatarUrl
+      : null,
+  );
 
   const avatarImageURI = isNonEmptyString(avatarUrl) ? avatarUrl : null;
 
@@ -140,7 +150,10 @@ export const Avatar = ({
       {isNonEmptyString(avatarImageURI) && (
         <AvatarImageLoadErrorEffect
           avatarImageURI={avatarImageURI}
-          onImageLoadError={setErroredAvatarImageURI}
+          onImageLoadError={(uri) => {
+            erroredAvatarImageURIs.add(uri);
+            setErroredAvatarImageURI(uri);
+          }}
         />
       )}
       {Icon ? (

@@ -13,6 +13,7 @@ import { useIsMobile } from '@/ui/utilities/responsive/hooks/useIsMobile';
 import { styled } from '@linaria/react';
 import { Outlet } from 'react-router-dom';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
+import { IcehouseTopBar } from '~/icehouse/top-bar/IcehouseTopBar';
 const StyledLayout = styled.div`
   background: ${themeCssVariables.grayScale.gray3};
   display: flex;
@@ -83,6 +84,7 @@ export const DefaultLayout = () => {
           <AppErrorBoundary FallbackComponent={AppFullScreenErrorFallback}>
             <InformationBannerIsImpersonating />
             <LayoutCustomizationBar />
+            <IcehouseTopBar />
             <StyledPageContainer>
               <PageDragDropProvider>
                 <KeyboardShortcutMenu />

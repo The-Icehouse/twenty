@@ -264,3 +264,65 @@ div:has(> [data-icehouse="quick-actions"]) {
 .light [data-icehouse="index-toolbar"] [data-icehouse="view-type-toggle"] button[disabled] {
   color: #b0c1d4;
 }
+
+/* ───────────── Global top bar: HubSpot's navy "Find or Ask" bar (both modes — navy like the nav) ─────────────
+   Rendered by src/icehouse/top-bar/IcehouseTopBar.tsx above the drawer + content row, desktop only.
+   The TSX paints it with theme tokens; these rules give both modes HubSpot's #2d3e50 chrome, light
+   text, the #425b76 search pill and #516f90 hairlines. Every hook is the bar's own data-icehouse-part. */
+[data-icehouse="top-bar"] {
+  background: #2d3e50;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  color: #dfe3eb;
+}
+/* Tabler icons take their colour as a stroke attribute; CSS wins over attributes */
+[data-icehouse="top-bar"] svg {
+  stroke: currentColor !important;
+  color: inherit;
+}
+[data-icehouse="top-bar"] [data-icehouse-part="find-or-ask"] {
+  background: #425b76;
+  border-color: #516f90;
+  border-radius: 3px;
+  color: #dfe3eb;
+}
+[data-icehouse="top-bar"] [data-icehouse-part="find-or-ask"]:hover {
+  border-color: #7c98b6;
+}
+[data-icehouse="top-bar"] [data-icehouse-part="find-or-ask"]:focus-within {
+  border-color: #0091ae;
+  box-shadow: 0 0 0 1px #0091ae;
+}
+[data-icehouse="top-bar"] [data-icehouse-part="find"] {
+  color: #dfe3eb;
+}
+[data-icehouse="top-bar"] [data-icehouse-part="find"]:hover {
+  color: #ffffff;
+}
+[data-icehouse="top-bar"] [data-icehouse-part="kbd"] {
+  background: rgba(255, 255, 255, 0.1);
+  color: #99acc2;
+}
+[data-icehouse="top-bar"] [data-icehouse-part="ask"] {
+  border-left-color: #516f90;
+  color: #ffffff;
+}
+[data-icehouse="top-bar"] [data-icehouse-part="ask"]:hover {
+  background: #516f90;
+}
+[data-icehouse="top-bar"] [data-icehouse-part="create"],
+[data-icehouse="top-bar"] [data-icehouse-part="settings"],
+[data-icehouse="top-bar"] [data-icehouse-part="help"] {
+  border-radius: 3px;
+  color: #dfe3eb;
+}
+[data-icehouse="top-bar"] [data-icehouse-part="create"]:hover,
+[data-icehouse="top-bar"] [data-icehouse-part="settings"]:hover,
+[data-icehouse="top-bar"] [data-icehouse-part="help"]:hover {
+  background: #425b76;
+  color: #ffffff;
+}
+/* the "+" trigger sits inside upstream's Dropdown anchor, which carries aria-expanded */
+[data-icehouse="top-bar"] [aria-expanded="true"] > [data-icehouse-part="create"] {
+  background: #516f90;
+  color: #ffffff;
+}

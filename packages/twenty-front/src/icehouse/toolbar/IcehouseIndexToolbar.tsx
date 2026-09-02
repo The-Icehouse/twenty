@@ -2,6 +2,7 @@ import { ObjectSortDropdownButton } from '@/object-record/object-sort-dropdown/c
 import { useIsMobile } from '@/ui/utilities/responsive/hooks/useIsMobile';
 import { styled } from '@linaria/react';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
+import { IcehouseMobileIndexToolbar } from '~/icehouse/mobile/IcehouseMobileIndexToolbar';
 import { IcehouseIndexToolbarColumnsDropdown } from '~/icehouse/toolbar/IcehouseIndexToolbarColumnsDropdown';
 import { IcehouseIndexToolbarFilterButton } from '~/icehouse/toolbar/IcehouseIndexToolbarFilterButton';
 import { IcehouseIndexToolbarSearchInput } from '~/icehouse/toolbar/IcehouseIndexToolbarSearchInput';
@@ -32,15 +33,16 @@ type IcehouseIndexToolbarProps = {
 };
 
 // HubSpot's index toolbar: search | Filter (count) | Sort … table/board | columns.
-// Desktop only. Every dropdown here is upstream's own component or upstream's
-// dropdown id, so Update view / Reset in ViewBarDetails keep working unchanged.
+// Desktop layout here; on mobile the compact IcehouseMobileIndexToolbar takes
+// the slot. Every dropdown is upstream's own component or upstream's dropdown
+// id, so Update view / Reset in ViewBarDetails keep working unchanged.
 export const IcehouseIndexToolbar = ({
   viewBarId,
 }: IcehouseIndexToolbarProps) => {
   const isMobile = useIsMobile();
 
   if (isMobile) {
-    return null;
+    return <IcehouseMobileIndexToolbar viewBarId={viewBarId} />;
   }
 
   return (

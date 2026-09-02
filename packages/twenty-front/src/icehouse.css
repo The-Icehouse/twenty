@@ -640,3 +640,124 @@ div:has(> [data-icehouse="quick-actions"]) {
 .light [data-icehouse="mobile-record"] [data-icehouse-part="related"] {
   background: #f5f8fa;
 }
+
+
+/* ───────────── mobile-list: index page as a card list + compact toolbar on phones ───────────── */
+/* Rendered by src/icehouse/mobile (mobile only: max-width 768px = useIsMobile). The TSX paints
+   with theme tokens so dark mode is right by default; this section adds phone geometry (44px
+   targets, 16px input text so iOS does not zoom) and HubSpot's light palette.
+   The upstream TopBar row (view picker + Filter/Sort/Options) is collapsed the same way the
+   desktop view-tabs section collapses it: the fork toolbar hosts those same upstream dropdowns,
+   and the picker stays mounted (hidden, not removed) so the chip row's "+" can open its
+   create-view form from it. Hook = the fork toolbar's own data-icehouse attribute, reached
+   through :has() because the row is upstream's and carries no hook of its own. */
+@media (max-width: 768px) {
+  div:has(> [data-icehouse="mobile-toolbar"]) > div:first-child {
+    height: 0;
+    min-height: 0;
+    overflow: visible;
+  }
+  div:has(> [data-icehouse="mobile-toolbar"]) [role="button"][aria-controls="view-picker-options"] {
+    overflow: hidden;
+    visibility: hidden;
+    width: 0;
+  }
+  [data-icehouse="mobile-toolbar"] [data-icehouse="search"] {
+    border-radius: 8px;
+    flex: 1;
+    height: 44px;
+    min-width: 0;
+    width: auto;
+  }
+  [data-icehouse="mobile-toolbar"] [data-icehouse="search"] input {
+    font-size: 16px;
+  }
+  [data-icehouse="mobile-toolbar"] [data-icehouse-part="filter"] button:not([data-icehouse="filter-count"]),
+  [data-icehouse="mobile-toolbar"] [data-icehouse-part="sort"] button,
+  [data-icehouse="mobile-toolbar"] [data-icehouse-part="options"] button {
+    align-items: center;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 14px;
+    min-height: 44px;
+    padding: 0 10px;
+  }
+  [data-icehouse="mobile-toolbar"] [data-icehouse="filter-button"][data-active] {
+    border-radius: 8px;
+    gap: 4px;
+    padding-right: 6px;
+  }
+  [data-icehouse="mobile-list"] [data-icehouse-part="secondary"] {
+    font-size: 14px;
+  }
+}
+
+.light [data-icehouse="mobile-toolbar"] {
+  background: #f4f7fa;
+  border-bottom-color: #cbd6e2;
+}
+.light [data-icehouse="mobile-toolbar"] [data-icehouse="search"] {
+  background: #ffffff;
+  border-color: #cbd6e2;
+  color: #7c98b6;
+}
+.light [data-icehouse="mobile-toolbar"] [data-icehouse="search"]:focus-within {
+  border-color: #0091ae;
+  box-shadow: 0 0 0 1px #0091ae;
+}
+.light [data-icehouse="mobile-toolbar"] [data-icehouse="search"] input {
+  color: #33475b;
+}
+.light [data-icehouse="mobile-toolbar"] [data-icehouse="search"] input::placeholder {
+  color: #7c98b6;
+}
+.light [data-icehouse="mobile-toolbar"] [data-icehouse-part="filter"] button:not([data-icehouse="filter-count"]),
+.light [data-icehouse="mobile-toolbar"] [data-icehouse-part="sort"] button,
+.light [data-icehouse="mobile-toolbar"] [data-icehouse-part="options"] button {
+  background: #ffffff;
+  border: 1px solid #cbd6e2;
+  color: #33475b;
+}
+.light [data-icehouse="mobile-toolbar"] [data-icehouse="filter-button"][data-active] {
+  background: #e5f5f8;
+  border: 1px solid #0091ae;
+}
+.light [data-icehouse="mobile-toolbar"] [data-icehouse="filter-button"][data-active] button:not([data-icehouse="filter-count"]) {
+  background: transparent;
+  border: none;
+  color: #0091ae;
+}
+.light [data-icehouse="mobile-toolbar"] [data-icehouse="filter-count"] {
+  background: #0091ae;
+  color: #ffffff;
+}
+.light [data-icehouse="mobile-view-chips"] [data-icehouse-tab] {
+  background: #ffffff;
+  border-color: #cbd6e2;
+  color: #516f90;
+}
+.light [data-icehouse="mobile-view-chips"] [data-icehouse-tab][data-active] {
+  background: #0091ae;
+  border-color: #0091ae;
+  color: #ffffff;
+}
+.light [data-icehouse="mobile-list"] {
+  background: #f5f8fa;
+}
+.light [data-icehouse="mobile-list"] [data-icehouse-part="card"] {
+  background: #ffffff;
+  border-color: #cbd6e2;
+  box-shadow: 0 1px 4px 0 rgba(66, 91, 117, 0.06);
+}
+.light [data-icehouse="mobile-list"] [data-icehouse-part="name"] {
+  color: #0091ae;
+}
+.light [data-icehouse="mobile-list"] [data-icehouse-part="secondary"],
+.light [data-icehouse="mobile-list"] [data-icehouse-part="count"],
+.light [data-icehouse="mobile-list"] [data-icehouse-part="empty"],
+.light [data-icehouse="mobile-list"] [data-icehouse-part="loading-more"] {
+  color: #516f90;
+}
+.light [data-icehouse="mobile-list"] [data-icehouse-part="skeleton"] {
+  background: #eaf0f6;
+}

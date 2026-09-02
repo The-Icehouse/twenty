@@ -6,6 +6,7 @@ import { RecordTableWithWrappers } from '@/object-record/record-table/components
 import { isModalOpenedComponentState } from '@/ui/layout/modal/states/isModalOpenedComponentState';
 import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
 import { IcehouseTableFooter } from '~/icehouse/footer/IcehouseTableFooter';
+import { IcehouseMobileRecordList } from '~/icehouse/mobile/IcehouseMobileRecordList';
 
 type RecordIndexTableContainerProps = {
   recordTableId: string;
@@ -25,11 +26,13 @@ export const RecordIndexTableContainer = ({
   return (
     <>
       <RecordIndexTableContainerEffect />
-      <RecordTableWithWrappers
-        recordTableId={recordTableId}
-        objectNameSingular={objectNameSingular}
-        viewBarId={viewBarInstanceId}
-      />
+      <IcehouseMobileRecordList>
+        <RecordTableWithWrappers
+          recordTableId={recordTableId}
+          objectNameSingular={objectNameSingular}
+          viewBarId={viewBarInstanceId}
+        />
+      </IcehouseMobileRecordList>
       <IcehouseTableFooter recordTableId={recordTableId} />
       {isModalOpened && <RecordIndexRemoveSortingModal />}
     </>

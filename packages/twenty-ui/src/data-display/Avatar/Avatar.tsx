@@ -1,9 +1,8 @@
 import { isNonEmptyString, isNull } from '@sniptt/guards';
 import { clsx } from 'clsx';
-import { useState } from 'react';
 
 import { handleClickableElementKeyDown } from '@ui/accessibility/utils/handleClickableElementKeyDown';
-import { AvatarImageLoadErrorEffect } from '@ui/data-display/Avatar/internal/AvatarImageLoadErrorEffect';
+import { useAvatarImageStatus } from '@ui/data-display/Avatar/internal/useAvatarImageStatus';
 import { type AvatarSize } from '@ui/data-display/Avatar/types/AvatarSize';
 import { type AvatarType } from '@ui/data-display/Avatar/types/AvatarType';
 import { type IconComponent } from '@ui/icon/types/IconComponent';
@@ -13,9 +12,6 @@ import { type Nullable } from '@ui/utilities/types/Nullable';
 import { isDefined } from '@ui/utilities/utils/isDefined';
 
 import styles from './Avatar.module.scss';
-
-// Icehouse fork: session-wide negative cache of avatar image URLs that failed to load.
-const erroredAvatarImageURIs = new Set<string>();
 
 export type AvatarProps = {
   avatarUrl?: string | null;
@@ -50,29 +46,20 @@ export const Avatar = ({
 }: AvatarProps) => {
   const theme = useTheme();
 
-  // Icehouse fork: remember failed image URLs for the whole session. Company logos come from
-  // twenty-icons.com and 404 for many domains; without this every re-render of every row
-  // re-requested the same broken URL (≈40 failed requests per table paint).
-  const [erroredAvatarImageURI, setErroredAvatarImageURI] = useState<
-    string | null
-  >(() =>
-    isNonEmptyString(avatarUrl) && erroredAvatarImageURIs.has(avatarUrl)
-      ? avatarUrl
-      : null,
-  );
-
   const avatarImageURI = isNonEmptyString(avatarUrl) ? avatarUrl : null;
 
-  const avatarImageFailedToLoad =
-    isNonEmptyString(avatarImageURI) &&
-    erroredAvatarImageURI === avatarImageURI;
+  // Icehouse fork: one shared probe per URL, remembered for the session (and, for
+  // twenty-icons.com misses, across sessions). The image is painted only once its probe
+  // has loaded, so a URL is fetched at most once and a known-bad URL never.
+  const avatarImageStatus = useAvatarImageStatus(avatarImageURI);
 
   const placeholderFirstChar = placeholder?.trim()?.charAt(0);
   const isPlaceholderFirstCharEmpty =
     !placeholderFirstChar || placeholderFirstChar === '';
   const placeholderChar = placeholderFirstChar?.toUpperCase() || '-';
 
-  const showPlaceholder = isNull(avatarImageURI) || avatarImageFailedToLoad;
+  const showPlaceholder =
+    isNull(avatarImageURI) || avatarImageStatus !== 'loaded';
 
   const fixedColor = isPlaceholderFirstCharEmpty
     ? theme.font.color.tertiary
@@ -147,15 +134,6 @@ export const Avatar = ({
       onKeyDown={isClickable ? handleClickableElementKeyDown : undefined}
       style={avatarStyle}
     >
-      {isNonEmptyString(avatarImageURI) && (
-        <AvatarImageLoadErrorEffect
-          avatarImageURI={avatarImageURI}
-          onImageLoadError={(uri) => {
-            erroredAvatarImageURIs.add(uri);
-            setErroredAvatarImageURI(uri);
-          }}
-        />
-      )}
       {Icon ? (
         <Icon
           color={iconColor ? iconColor : 'currentColor'}

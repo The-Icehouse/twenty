@@ -32,6 +32,7 @@ slices settled on:
   hashed class names.
 - `icehouse.css` is append-only per feature section. When two branches both append, the merge is a union
   (base first, new section last); keep sections labelled with a comment header.
+- `mise x node@24.16.0 -- node scripts/check-css.mjs` after any edit to `icehouse.css` (a lost brace breaks the whole bundle, and the CI build only tells you 8 minutes later).
 - Typecheck (`mise x node@24.16.0 -- npx nx run twenty-front:typecheck`) and oxlint with the `twenty/*` plugin
   (`npx nx build twenty-oxlint-rules` once, then `npx oxlint -c packages/twenty-front/.oxlintrc.json <paths>`)
   before every commit. Vite does not typecheck.

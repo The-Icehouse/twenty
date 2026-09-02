@@ -17,6 +17,7 @@ import { isDefined } from 'twenty-shared/utils';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
 import { PageLayoutType } from '~/generated-metadata/graphql';
 import { IcehouseStageTracker } from '~/icehouse/stage-tracker/IcehouseStageTracker';
+import { IcehouseRecordColumns } from '~/icehouse/associations/IcehouseRecordColumns';
 
 const StyledShowPageBannerContainer = styled.div`
   z-index: 1;
@@ -96,7 +97,9 @@ export const PageLayoutRecordPageRenderer = ({
             }}
           >
             {isDefined(pageLayoutId) && (
-              <PageLayoutRenderer pageLayoutId={pageLayoutId} />
+              <IcehouseRecordColumns>
+                <PageLayoutRenderer pageLayoutId={pageLayoutId} />
+              </IcehouseRecordColumns>
             )}
           </LayoutRenderingProvider>
         </StyledContentContainer>

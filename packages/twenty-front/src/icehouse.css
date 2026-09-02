@@ -446,3 +446,38 @@ div:has(> [data-icehouse="quick-actions"]) {
 .light [data-icehouse="stage-tracker"] [data-icehouse-part="summary"] span {
   color: #33475b;
 }
+
+
+/* ───────────── Record page: HubSpot association cards (right-hand column) ───────────── */
+/* Rendered by src/icehouse/associations (desktop record page only). The TSX paints with
+   theme tokens so dark mode is right by default; light mode gets HubSpot's #f5f8fa column,
+   white cards on a #cbd6e2 hairline, #33475b titles, #516f90 counts and teal #0091ae links.
+   Geometry (4px card radius) is mode-agnostic. */
+[data-icehouse="associations"] [data-icehouse-part="card"] {
+  border-radius: 4px;
+}
+
+.light [data-icehouse="associations"] {
+  background: #f5f8fa;
+  border-left-color: #cbd6e2;
+}
+.light [data-icehouse="associations"] [data-icehouse-part="card"] {
+  background: #ffffff;
+  border-color: #cbd6e2;
+}
+.light [data-icehouse="associations"] [data-icehouse-part="body"] {
+  border-top-color: #eaf0f6;
+}
+.light [data-icehouse="associations"] [data-icehouse-part="toggle"] {
+  color: #33475b;
+}
+.light [data-icehouse="associations"] [data-icehouse-part="title"] {
+  color: #33475b;
+}
+.light [data-icehouse="associations"] [data-icehouse-part="count"],
+.light [data-icehouse="associations"] [data-icehouse-part="empty"] {
+  color: #516f90;
+}
+.light [data-icehouse="associations"] [data-icehouse-part="view-all"] {
+  color: #0091ae;
+}

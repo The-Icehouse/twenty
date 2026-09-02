@@ -181,6 +181,21 @@ export default defineConfig(({ mode }) => {
         // including this one we wasted a lot of time on:
         // https://github.com/rollup/rollup/issues/2793
         output: {
+          // Icehouse: Tabler icons shared by 2+ lazy chunks were 116 separate
+          // ~300-byte chunks (75 modulepreloaded from index.html). One leaf
+          // chunk instead - it imports only react, so no rollup#2793 cycles;
+          // minShareCount keeps entry-only icons inline and the 3,800-icon
+          // AllIcons lazy chunk untouched. 1007->889 chunks, 405->328 preloads.
+          codeSplitting: {
+            includeDependenciesRecursively: false,
+            groups: [
+              {
+                name: 'icons',
+                test: /node_modules[\\/]@tabler[\\/]icons-react[\\/]/,
+                minShareCount: 2,
+              },
+            ],
+          },
           plugins: [
             {
               name: 'chunk-size-limit',

@@ -95,3 +95,36 @@
   border-radius: 4px;
   box-shadow: 0 1px 4px 0 rgba(66, 91, 117, 0.06);
 }
+
+/* ───────────── Index page: HubSpot view tabs ───────────── */
+/* The fork's IcehouseViewTabStrip (src/icehouse/view-tabs) replaces upstream's view-picker dropdown
+   on desktop. The picker's trigger is collapsed, not removed: its Dropdown must stay mounted because
+   the strip's "+" tab opens upstream's create-view form through it, and that form floats from this
+   anchor (a display:none anchor would pin it to the viewport corner). The media query is the exact
+   complement of useIsMobile() (max-width: 768px): below it the strip does not render and the picker
+   is left alone. Hook = the Dropdown's aria-controls, derived from VIEW_PICKER_DROPDOWN_ID. */
+@media not all and (max-width: 768px) {
+  [role="button"][aria-controls="view-picker-options"] {
+    overflow: hidden;
+    visibility: hidden;
+    width: 0;
+  }
+}
+/* HubSpot look for the strip: white bar, #cbd6e2 rule, #516f90 tabs, active #33475b on a 3px #0091ae
+   underline. Dark mode keeps the component's theme tokens. */
+.light [data-icehouse="view-tabs"] {
+  background: #ffffff;
+  border-bottom: 1px solid #cbd6e2;
+}
+.light [data-icehouse="view-tabs"] [data-icehouse-tab] {
+  color: #516f90;
+  font-size: 14px;
+}
+.light [data-icehouse="view-tabs"] [data-icehouse-tab]:hover {
+  color: #33475b;
+}
+.light [data-icehouse="view-tabs"] [data-icehouse-tab][data-active] {
+  border-bottom-color: transparent;
+  box-shadow: inset 0 -3px 0 #0091ae;
+  color: #33475b;
+}

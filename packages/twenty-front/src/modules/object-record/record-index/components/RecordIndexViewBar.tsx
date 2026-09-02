@@ -7,6 +7,7 @@ import { SpreadsheetImportProvider } from '@/spreadsheet-import/provider/compone
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 import { ViewBar } from '@/views/components/ViewBar';
 import { ViewType } from '@/views/types/ViewType';
+import { IcehouseViewTabStrip } from '~/icehouse/view-tabs/IcehouseViewTabStrip';
 
 export const RecordIndexViewBar = () => {
   const recordIndexViewType = useAtomStateValue(recordIndexViewTypeState);
@@ -19,6 +20,7 @@ export const RecordIndexViewBar = () => {
 
   return (
     <SpreadsheetImportProvider>
+      <IcehouseViewTabStrip />
       <ViewBar
         isReadOnly={hasCurrentViewNonReadableFields}
         viewBarId={recordIndexId}

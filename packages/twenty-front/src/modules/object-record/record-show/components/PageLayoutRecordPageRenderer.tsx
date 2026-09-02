@@ -16,6 +16,7 @@ import { CoreObjectNameSingular } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 import { themeCssVariables } from 'twenty-ui/theme-constants';
 import { PageLayoutType } from '~/generated-metadata/graphql';
+import { IcehouseStageTracker } from '~/icehouse/stage-tracker/IcehouseStageTracker';
 
 const StyledShowPageBannerContainer = styled.div`
   z-index: 1;
@@ -77,6 +78,7 @@ export const PageLayoutRecordPageRenderer = ({
       )}
 
       <StyledShowPageRightContainer>
+        <IcehouseStageTracker targetRecordIdentifier={targetRecordIdentifier} isInSidePanel={isInSidePanel} />
         <StyledContentContainer isInSidePanel={isInSidePanel}>
           <LayoutRenderingProvider
             value={{

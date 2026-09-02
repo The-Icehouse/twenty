@@ -104,6 +104,13 @@
    complement of useIsMobile() (max-width: 768px): below it the strip does not render and the picker
    is left alone. Hook = the Dropdown's aria-controls, derived from VIEW_PICKER_DROPDOWN_ID. */
 @media not all and (max-width: 768px) {
+  /* the upstream TopBar row is now empty on desktop (picker hidden, Filter/Sort moved into the
+     toolbar) — collapse its height but keep it in flow so the picker's popovers still anchor here */
+  [data-icehouse="view-tabs"] + div > div:first-child {
+    height: 0;
+    min-height: 0;
+    overflow: visible;
+  }
   [role="button"][aria-controls="view-picker-options"] {
     overflow: hidden;
     visibility: hidden;

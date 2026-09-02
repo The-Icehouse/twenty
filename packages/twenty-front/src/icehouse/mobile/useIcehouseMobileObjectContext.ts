@@ -10,6 +10,9 @@ export type IcehouseMobilePage = 'index' | 'record' | 'home' | 'other';
 type IcehouseMobileObjectContext = {
   page: IcehouseMobilePage;
   objectMetadataItem: EnrichedObjectMetadataItem | undefined;
+  // The record's id on a record page (the :objectRecordId route segment);
+  // undefined everywhere else.
+  objectRecordId: string | undefined;
 };
 
 // Which page the phone is on, and which object it belongs to, read from the
@@ -35,6 +38,7 @@ export const useIcehouseMobileObjectContext =
             objectMetadataItem.namePlural ===
               indexMatch.params.objectNamePlural,
         ),
+        objectRecordId: undefined,
       };
     }
 
@@ -49,11 +53,13 @@ export const useIcehouseMobileObjectContext =
             objectMetadataItem.nameSingular ===
               recordMatch.params.objectNameSingular,
         ),
+        objectRecordId: recordMatch.params.objectRecordId,
       };
     }
 
     return {
       page: pathname === AppPath.Home ? 'home' : 'other',
       objectMetadataItem: undefined,
+      objectRecordId: undefined,
     };
   };

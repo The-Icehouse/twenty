@@ -55,6 +55,7 @@ slices settled on:
 | Association cards column (Tier 2) | `icehouse/associations` | `record-show/components/PageLayoutRecordPageRenderer.tsx` (wraps `PageLayoutRenderer`) |
 | Mobile tab bar + slim mobile header (mobile tier) | `icehouse/mobile` | `ui/layout/page/components/DefaultLayout.tsx` (replaces the `MobileNavigationBar` line); `data-icehouse` hook on `ui/layout/page/components/PageCardHeader.tsx` |
 | Phone record page: header card, quick actions, compact tracker, About · Activities · Related (Mobile tier) | `icehouse/mobile` | `record-show/components/PageLayoutRecordPageRenderer.tsx` (wraps the `IcehouseRecordColumns` wrap; hides upstream's tab list with CSS and drives `activeTabIdComponentState`) |
+| Phone record header: back · object label · previous/next record · "⋮", upstream's record header row folded in (Mobile tier) | `icehouse/mobile` (`IcehouseMobileRecordHeaderActions`, rendered by `IcehouseMobileHeader`) | no new mount — `DefaultLayout.tsx` already mounts the header; upstream's `PageCardHeader` row is hidden on phone record pages by CSS (`data-icehouse-page="record"` + `:has` on the header's "⋮") |
 
 ## What lives where
 

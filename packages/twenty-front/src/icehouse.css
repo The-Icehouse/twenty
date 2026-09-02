@@ -780,3 +780,25 @@ div:has(> [data-icehouse="quick-actions"]) {
 [data-icehouse="quick-filters"][data-icehouse-all-owned] + div > div > [id^="scroll-wrapper-"] + div {
   display: none;
 }
+
+
+/* ───────────── mobile-record-header: fold upstream's record header row into the fork header ─────────────
+   Rendered by src/icehouse/mobile (IcehouseMobileHeader + IcehouseMobileRecordHeaderActions), phone only.
+   On a phone record page the DOM was, top to bottom: the fork header (back chevron + object label), then
+   upstream's PageCardHeader row (small avatar + editable name + icon-only pinned commands + "⋮"), then the
+   fork's summary card with the same name again. The header now carries the previous/next-record chevrons
+   and the "⋮" itself, so the row goes the same way the index row does (mobile-nav section above): the fork
+   header on a record page, then any later sibling (DefaultLayout's page container) and the hooked row
+   inside it. The extra :has() (already used by mobile-list) keys the rule on the header actually holding
+   the "⋮": in layout-customization mode the fork's mobile record page and its summary card stand down and
+   the header renders no record actions, so upstream's row — the only place the name is then shown — stays.
+   Nothing the row carried is lost: prev/next live here, and the side panel's command-menu page
+   (SidePanelCommandMenuItemDisplayPage) lists every pinned item whose inline slot in the page header it
+   cannot account for — under display:none the row's NodeDimension never reports a width, so the
+   'page-header' layout keeps containerWidth 0 and the whole pinned set is listed under "Pinned" — exactly
+   as it already works for the hidden index row. */
+@media (max-width: 768px) {
+  [data-icehouse="mobile-header"][data-icehouse-page="record"]:has([data-icehouse-part="actions"]) ~ * [data-icehouse="page-card-header"] {
+    display: none;
+  }
+}

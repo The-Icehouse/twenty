@@ -1,3 +1,4 @@
+import { isLayoutCustomizationModeEnabledState } from '@/layout-customization/states/isLayoutCustomizationModeEnabledState';
 import { getObjectNavigationMenuItemComputedLink } from '@/navigation-menu-item/display/object/utils/getObjectNavigationMenuItemComputedLink';
 import { useIsSettingsDrawer } from '@/navigation/hooks/useIsSettingsDrawer';
 import { lastVisitedViewPerObjectMetadataItemState } from '@/navigation/states/lastVisitedViewPerObjectMetadataItemState';
@@ -24,6 +25,7 @@ import {
   IconSearch,
 } from 'twenty-ui/icon';
 import { themeCssVariables, useTheme } from 'twenty-ui/theme-constants';
+import { IcehouseMobileRecordHeaderActions } from '~/icehouse/mobile/IcehouseMobileRecordHeaderActions';
 import { useIcehouseMobileObjectContext } from '~/icehouse/mobile/useIcehouseMobileObjectContext';
 import { IcehouseTopBarCreateRecordEffect } from '~/icehouse/top-bar/IcehouseTopBarCreateRecordEffect';
 
@@ -64,6 +66,7 @@ const StyledActions = styled.div`
 
 // One 44px control look for a <button> and a router <Link>; a class because
 // Linaria's styled() cannot retype itself per tag (the top bar does the same).
+// Shared with IcehouseMobileRecordHeaderActions (passed as a prop).
 const mobileHeaderControlClass = css`
   align-items: center;
   background: transparent;
@@ -84,6 +87,11 @@ const mobileHeaderControlClass = css`
     background: ${themeCssVariables.background.transparent.light};
   }
 
+  &:disabled {
+    color: ${themeCssVariables.font.color.light};
+    cursor: default;
+  }
+
   &:focus-visible {
     outline: 2px solid ${themeCssVariables.color.blue};
     outline-offset: -2px;
@@ -95,26 +103,33 @@ const mobileHeaderControlClass = css`
 // Home menu page: settings, the AI chat and the standalone pages keep their
 // own headers. Left: the object's labelPlural (index) or a back chevron to
 // the object's last visited view plus the label (record page); "Menu" on
-// Home. Right, 44px each: "+" creating a record of the current object through
-// the fork's IcehouseTopBarCreateRecordEffect (the CREATE_NEW_RECORD path
-// minus the index-only parts — this header sits outside the record-index
-// providers useCreateNewIndexRecord needs — honouring openRecordIn and shown
-// only when upstream's own predicate says the member can create), the search
-// icon opening the same side-panel search page as the stock pill's Search,
-// and on index pages the command-menu "⋮" upstream's header carried.
+// Home. Right, 44px each, on index and Home pages: "+" creating a record of
+// the current object through the fork's IcehouseTopBarCreateRecordEffect
+// (the CREATE_NEW_RECORD path minus the index-only parts — this header sits
+// outside the record-index providers useCreateNewIndexRecord needs —
+// honouring openRecordIn and shown only when upstream's own predicate says
+// the member can create), the search icon opening the same side-panel search
+// page as the stock pill's Search, and on index pages the command-menu "⋮"
+// upstream's header carried. On record pages the right side is HubSpot's
+// instead — previous record, next record, "⋮" (IcehouseMobileRecordHeaderActions)
+// — with no "+" or search.
 //
-// On index pages this replaces upstream's PageCardHeader row (icon + title +
-// icon-only pinned commands + "⋮"); icehouse.css hides that row through the
-// data-icehouse-page="index" hook here and the data-icehouse hook on
-// PageCardHeader. The record page keeps upstream's row — it holds the avatar,
-// the editable record name and the record actions — so there this is a
-// navigation row above it, not a second title.
+// On both object pages this replaces upstream's PageCardHeader row (index:
+// icon + title + icon-only pinned commands + "⋮"; record: small avatar +
+// editable name + pinned commands + "⋮", a second title above the fork's
+// summary card). icehouse.css hides that row through the data-icehouse-page
+// hook here and the data-icehouse hook on PageCardHeader. The record rule is
+// additionally keyed on this header holding the "⋮", so layout-customization
+// mode — where the fork's mobile record page and its summary card stand down
+// — keeps upstream's row and the record actions it carries are not rendered
+// here.
 export const IcehouseMobileHeader = () => {
   const { t } = useLingui();
   const theme = useTheme();
   const isMobile = useIsMobile();
   const isSettingsDrawer = useIsSettingsDrawer();
-  const { page, objectMetadataItem } = useIcehouseMobileObjectContext();
+  const { page, objectMetadataItem, objectRecordId } =
+    useIcehouseMobileObjectContext();
   const { objectPermissionsByObjectMetadataId } = useObjectPermissions();
   const { openRecordsSearchPage } = useOpenRecordsSearchPageInSidePanel();
   const { openSidePanelMenu } = useSidePanelMenu();
@@ -122,6 +137,9 @@ export const IcehouseMobileHeader = () => {
   const views = useAtomStateValue(viewsSelector);
   const lastVisitedViewPerObjectMetadataItem = useAtomStateValue(
     lastVisitedViewPerObjectMetadataItemState,
+  );
+  const isLayoutCustomizationModeEnabled = useAtomStateValue(
+    isLayoutCustomizationModeEnabledState,
   );
   const [objectMetadataItemToCreate, setObjectMetadataItemToCreate] =
     useState<EnrichedObjectMetadataItem | null>(null);
@@ -162,6 +180,18 @@ export const IcehouseMobileHeader = () => {
       ? objectMetadataItem
       : undefined;
 
+  const recordHeaderActions =
+    page === 'record' &&
+    isDefined(objectMetadataItem) &&
+    isDefined(objectRecordId) &&
+    !isLayoutCustomizationModeEnabled ? (
+      <IcehouseMobileRecordHeaderActions
+        objectMetadataItem={objectMetadataItem}
+        objectRecordId={objectRecordId}
+        controlClassName={mobileHeaderControlClass}
+      />
+    ) : null;
+
   return (
     <StyledHeader data-icehouse="mobile-header" data-icehouse-page={page}>
       {isDefined(backLink) && (
@@ -176,38 +206,44 @@ export const IcehouseMobileHeader = () => {
       )}
       <StyledTitle data-icehouse-part="title">{title}</StyledTitle>
       <StyledActions>
-        {isDefined(creatableObjectMetadataItem) && (
-          <button
-            type="button"
-            className={mobileHeaderControlClass}
-            data-icehouse-part="create"
-            aria-label={t`Create ${creatableObjectMetadataItem.labelSingular}`}
-            onClick={() =>
-              setObjectMetadataItemToCreate(creatableObjectMetadataItem)
-            }
-          >
-            <IconPlus size={theme.icon.size.lg} aria-hidden />
-          </button>
-        )}
-        <button
-          type="button"
-          className={mobileHeaderControlClass}
-          data-icehouse-part="search"
-          aria-label={t`Search`}
-          onClick={openRecordsSearchPage}
-        >
-          <IconSearch size={theme.icon.size.lg} aria-hidden />
-        </button>
-        {page === 'index' && (
-          <button
-            type="button"
-            className={mobileHeaderControlClass}
-            data-icehouse-part="actions"
-            aria-label={t`Command Menu`}
-            onClick={openSidePanelMenu}
-          >
-            <IconDotsVertical size={theme.icon.size.lg} aria-hidden />
-          </button>
+        {page === 'record' ? (
+          recordHeaderActions
+        ) : (
+          <>
+            {isDefined(creatableObjectMetadataItem) && (
+              <button
+                type="button"
+                className={mobileHeaderControlClass}
+                data-icehouse-part="create"
+                aria-label={t`Create ${creatableObjectMetadataItem.labelSingular}`}
+                onClick={() =>
+                  setObjectMetadataItemToCreate(creatableObjectMetadataItem)
+                }
+              >
+                <IconPlus size={theme.icon.size.lg} aria-hidden />
+              </button>
+            )}
+            <button
+              type="button"
+              className={mobileHeaderControlClass}
+              data-icehouse-part="search"
+              aria-label={t`Search`}
+              onClick={openRecordsSearchPage}
+            >
+              <IconSearch size={theme.icon.size.lg} aria-hidden />
+            </button>
+            {page === 'index' && (
+              <button
+                type="button"
+                className={mobileHeaderControlClass}
+                data-icehouse-part="actions"
+                aria-label={t`Command Menu`}
+                onClick={openSidePanelMenu}
+              >
+                <IconDotsVertical size={theme.icon.size.lg} aria-hidden />
+              </button>
+            )}
+          </>
         )}
       </StyledActions>
       {isDefined(objectMetadataItemToCreate) && (

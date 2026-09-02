@@ -3,54 +3,54 @@
    Emotion's hashed class names change every build and are never targeted. Light mode only unless noted. */
 
 /* ───────────── App shell: HubSpot's navy left navigation ───────────── */
-.light [data-icehouse="nav-drawer"] {
+[data-icehouse="nav-drawer"] {
   background: #2d3e50;
   color: #dfe3eb;
   scrollbar-color: #516f90 transparent;
 }
-.light [data-icehouse="nav-drawer"] .navigation-drawer-item {
+[data-icehouse="nav-drawer"] .navigation-drawer-item {
   color: #dfe3eb;
   background: transparent;
   border-radius: 3px;
 }
-.light [data-icehouse="nav-drawer"] .navigation-drawer-item:hover {
+[data-icehouse="nav-drawer"] .navigation-drawer-item:hover {
   background: #425b76;
   color: #f5f8fa;
 }
-.light [data-icehouse="nav-drawer"] .navigation-drawer-item[aria-current="page"] {
+[data-icehouse="nav-drawer"] .navigation-drawer-item[aria-current="page"] {
   background: #516f90;
   color: #ffffff;
 }
 /* Tabler icons take their colour as a stroke attribute; CSS wins over attributes */
-.light [data-icehouse="nav-drawer"] svg {
+[data-icehouse="nav-drawer"] svg {
   stroke: currentColor !important;
   color: inherit;
 }
-.light [data-icehouse="nav-drawer"] .nav-item-icon-tile {
+[data-icehouse="nav-drawer"] .nav-item-icon-tile {
   background-color: #425b76;
 }
-.light [data-icehouse="nav-drawer"] .navigation-drawer-item[aria-current="page"] .nav-item-icon-tile {
+[data-icehouse="nav-drawer"] .navigation-drawer-item[aria-current="page"] .nav-item-icon-tile {
   background-color: #7c98b6;
 }
 /* section titles, secondary labels, shortcut hints, workspace switcher */
-.light [data-icehouse="nav-drawer"] .section-title-container,
-.light [data-icehouse="nav-drawer"] .section-title-container * {
+[data-icehouse="nav-drawer"] .section-title-container,
+[data-icehouse="nav-drawer"] .section-title-container * {
   color: #99acc2;
 }
-.light [data-icehouse="nav-drawer"] .keyboard-shortcuts {
+[data-icehouse="nav-drawer"] .keyboard-shortcuts {
   color: #99acc2;
   background: rgba(255, 255, 255, 0.08);
 }
-.light [data-icehouse="nav-drawer"] [data-testid="workspace-dropdown"],
-.light [data-icehouse="nav-drawer"] [data-testid="workspace-dropdown"] * {
+[data-icehouse="nav-drawer"] [data-testid="workspace-dropdown"],
+[data-icehouse="nav-drawer"] [data-testid="workspace-dropdown"] * {
   color: #ffffff;
 }
-.light [data-icehouse="nav-drawer"] input {
+[data-icehouse="nav-drawer"] input {
   background: #425b76;
   color: #ffffff;
   border-color: #516f90;
 }
-.light [data-icehouse="nav-drawer"] input::placeholder {
+[data-icehouse="nav-drawer"] input::placeholder {
   color: #99acc2;
 }
 

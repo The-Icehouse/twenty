@@ -326,3 +326,51 @@ div:has(> [data-icehouse="quick-actions"]) {
   background: #516f90;
   color: #ffffff;
 }
+
+
+/* ───────────── Index page: HubSpot quick-filter chip row ───────────── */
+/* Rendered by src/icehouse/quick-filters/IcehouseQuickFilterRow.tsx (desktop only), directly
+   below the index toolbar. TSX paints with theme tokens so dark mode is right by default; light
+   mode gets HubSpot's chips: white, #cbd6e2 border, #33475b text, teal (#0091ae) border and text
+   once the chip carries a filter. Hooks: data-icehouse="quick-filters" on the row;
+   data-icehouse-part="chip" | "add" | "advanced" on each chip ("clear" / "count" inside them);
+   data-active on a chip whose filter is applied. */
+[data-icehouse="quick-filters"] [data-icehouse-part="chip"],
+[data-icehouse="quick-filters"] [data-icehouse-part="add"],
+[data-icehouse="quick-filters"] [data-icehouse-part="advanced"] {
+  border-radius: 3px;
+}
+
+.light [data-icehouse="quick-filters"] {
+  background: #ffffff;
+}
+.light [data-icehouse="quick-filters"] [data-icehouse-part="chip"],
+.light [data-icehouse="quick-filters"] [data-icehouse-part="add"],
+.light [data-icehouse="quick-filters"] [data-icehouse-part="advanced"] {
+  background: #ffffff;
+  border-color: #cbd6e2;
+  color: #33475b;
+}
+.light [data-icehouse="quick-filters"] [data-icehouse-part="chip"]:hover,
+.light [data-icehouse="quick-filters"] [data-icehouse-part="add"]:hover,
+.light [data-icehouse="quick-filters"] [data-icehouse-part="advanced"]:hover {
+  background: #f5f8fa;
+}
+.light [data-icehouse="quick-filters"] [data-icehouse-part="chip"][data-active],
+.light [data-icehouse="quick-filters"] [data-icehouse-part="advanced"][data-active] {
+  border-color: #0091ae;
+  color: #0091ae;
+}
+.light [data-icehouse="quick-filters"] [data-icehouse-part="clear"] {
+  border-left-color: #cbd6e2;
+}
+.light [data-icehouse="quick-filters"] [data-icehouse-part="clear"]:hover {
+  background: #e5f5f8;
+}
+.light [data-icehouse="quick-filters"] [data-icehouse-part="count"] {
+  background: #0091ae;
+  color: #ffffff;
+}
+.light [data-icehouse="quick-filters"] button[disabled] {
+  color: #b0c1d4;
+}

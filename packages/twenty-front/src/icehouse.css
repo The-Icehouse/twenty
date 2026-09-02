@@ -761,3 +761,22 @@ div:has(> [data-icehouse="quick-actions"]) {
 .light [data-icehouse="mobile-list"] [data-icehouse-part="skeleton"] {
   background: #eaf0f6;
 }
+
+
+/* ───────────── quick-filters (2): collapse upstream's details bar once the row owns every filter ─────────────
+   With every filter chip parked (rule above), upstream's ViewBarDetails bar was still 33px tall on a filtered
+   view, showing nothing but its own "Add filter" button — the row already has "+". Verified live on production
+   (My contacts, 2026-09-02): the bar is the row's direct next sibling; inside it, the ScrollWrapper
+   (`[id^="scroll-wrapper-"]`) sits in a flex container next to the add-filter container, and the bar's last
+   child holds Reset / "Update view". Hide the add-filter container and zero the bar's own chrome; the bar then
+   measures 0 unless it still holds something of its own (a sort chip, the Deleted chip, Reset, Update view),
+   which keeps showing exactly as before. */
+[data-icehouse="quick-filters"][data-icehouse-all-owned] + div:has(> div > [id^="scroll-wrapper-"]) {
+  border-top: 0;
+  min-height: 0;
+  padding-bottom: 0;
+  padding-top: 0;
+}
+[data-icehouse="quick-filters"][data-icehouse-all-owned] + div > div > [id^="scroll-wrapper-"] + div {
+  display: none;
+}

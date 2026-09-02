@@ -172,16 +172,21 @@ export const useTriggerInitialRecordTableDataLoad = () => {
           newDataLoadingStatusByRealIndex,
         );
 
-        store.set(
-          recordIndexRecordIdsByGroupFamilyState(NO_RECORD_GROUP_FAMILY_KEY),
-          [],
-        );
-
         const { records: findManyRecords, totalCount: findManyTotalCount } =
           await findManyRecordsLazy();
 
         records = findManyRecords;
         totalCount = findManyTotalCount;
+
+        // Icehouse (perf): the id list is emptied only once the new page is
+        // here. Emptying it before the fetch flipped recordIndexHasRecords,
+        // which swapped the whole body for the 80-row loading skeleton and
+        // remounted every row afterwards; the rows already show their own
+        // skeleton while their status is 'not-loaded'.
+        store.set(
+          recordIndexRecordIdsByGroupFamilyState(NO_RECORD_GROUP_FAMILY_KEY),
+          [],
+        );
 
         store.set(
           totalNumberOfRecordsToVirtualizeCallbackState,

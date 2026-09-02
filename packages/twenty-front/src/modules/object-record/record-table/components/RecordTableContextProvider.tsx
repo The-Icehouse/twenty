@@ -1,4 +1,5 @@
-import { type ReactNode, useCallback } from 'react';
+import { type ComponentProps, type ReactNode, useMemo } from 'react';
+import { useLatestCallback } from '~/icehouse/perf/useLatestCallback';
 
 import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
@@ -16,6 +17,14 @@ import { RecordTableUpdateContext } from '@/object-record/record-table/contexts/
 import { useAtomComponentSelectorValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentSelectorValue';
 import { useIsTouchDevice } from 'twenty-ui/utilities';
 import { OpenRecordIn } from 'twenty-shared/types';
+
+type RecordTableContextValue = ComponentProps<
+  typeof RecordTableContextInternalProvider
+>['value'];
+
+const RECORD_FIELDS_SCOPE = {
+  scopeInstanceId: RECORD_TABLE_CELL_INPUT_ID_PREFIX,
+};
 
 type RecordTableContextProviderProps = {
   viewBarId: string;
@@ -48,7 +57,9 @@ export const RecordTableContextProvider = ({
 
   const { updateOneRecord } = useUpdateOneRecord();
 
-  const updateRecord = useCallback(
+  // Icehouse (perf): stable identities so the context values below can be
+  // memoised; otherwise every render of this provider re-renders every cell.
+  const updateRecord = useLatestCallback(
     ({ variables }: RecordUpdateHookParams) => {
       updateOneRecord({
         objectNameSingular,
@@ -56,7 +67,21 @@ export const RecordTableContextProvider = ({
         updateOneRecordInput: variables.updateOneRecordInput,
       });
     },
-    [objectNameSingular, updateOneRecord],
+  );
+
+  const handleRecordIdentifierClick = useLatestCallback(
+    (rowIndex: number, recordId: string) => {
+      onRecordIdentifierClick?.(rowIndex, recordId);
+    },
+  );
+
+  const clampedVisibleRecordFields = useMemo(
+    () =>
+      visibleRecordFields.map((field) => ({
+        ...field,
+        size: Math.max(field.size, RECORD_TABLE_COLUMN_MIN_WIDTH),
+      })),
+    [visibleRecordFields],
   );
 
   const openRecordIn = useResolveOpenRecordIn(objectNameSingular);
@@ -70,26 +95,34 @@ export const RecordTableContextProvider = ({
       ? 'CLICK'
       : 'MOUSE_DOWN';
 
+  const recordTableContextValue = useMemo<RecordTableContextValue>(
+    () => ({
+      viewBarId,
+      objectMetadataItem,
+      objectMetadataItems,
+      recordTableId,
+      objectNameSingular,
+      objectPermissions,
+      visibleRecordFields: clampedVisibleRecordFields,
+      onRecordIdentifierClick: handleRecordIdentifierClick,
+      triggerEvent,
+    }),
+    [
+      viewBarId,
+      objectMetadataItem,
+      objectMetadataItems,
+      recordTableId,
+      objectNameSingular,
+      objectPermissions,
+      clampedVisibleRecordFields,
+      handleRecordIdentifierClick,
+      triggerEvent,
+    ],
+  );
+
   return (
-    <RecordFieldsScopeContextProvider
-      value={{ scopeInstanceId: RECORD_TABLE_CELL_INPUT_ID_PREFIX }}
-    >
-      <RecordTableContextInternalProvider
-        value={{
-          viewBarId,
-          objectMetadataItem,
-          objectMetadataItems,
-          recordTableId,
-          objectNameSingular,
-          objectPermissions,
-          visibleRecordFields: visibleRecordFields.map((field) => ({
-            ...field,
-            size: Math.max(field.size, RECORD_TABLE_COLUMN_MIN_WIDTH),
-          })),
-          onRecordIdentifierClick,
-          triggerEvent,
-        }}
-      >
+    <RecordFieldsScopeContextProvider value={RECORD_FIELDS_SCOPE}>
+      <RecordTableContextInternalProvider value={recordTableContextValue}>
         <RecordTableUpdateContext.Provider value={updateRecord}>
           {children}
         </RecordTableUpdateContext.Provider>

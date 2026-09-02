@@ -22,7 +22,7 @@ import { PageTitle } from '@/ui/utilities/page-title/components/PageTitle';
 import { ViewComponentInstanceContext } from '@/views/states/contexts/ViewComponentInstanceContext';
 import { styled } from '@linaria/react';
 import { useStore } from 'jotai';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 const StyledIndexContainer = styled.div`
   display: flex;
@@ -64,34 +64,55 @@ export const RecordIndexContainerGater = () => {
     recordIndexId,
   );
 
+  // Icehouse (perf): memoised so a re-render of the gater (view switch,
+  // permissions) only reaches the cells when one of these inputs changed.
+  const recordIndexContextValue = useMemo(
+    () => ({
+      objectPermissionsByObjectMetadataId,
+      recordIndexId,
+      viewBarInstanceId: recordIndexId,
+      objectNamePlural: objectMetadataItem.namePlural,
+      objectNameSingular: objectMetadataItem.nameSingular,
+      objectMetadataItem,
+      onIndexRecordsLoaded: handleIndexRecordsLoaded,
+      indexIdentifierUrl,
+      recordFieldByFieldMetadataItemId,
+      labelIdentifierFieldMetadataItem,
+      fieldMetadataItemByFieldMetadataItemId,
+      fieldDefinitionByFieldMetadataItemId,
+    }),
+    [
+      objectPermissionsByObjectMetadataId,
+      recordIndexId,
+      objectMetadataItem,
+      handleIndexRecordsLoaded,
+      indexIdentifierUrl,
+      recordFieldByFieldMetadataItemId,
+      labelIdentifierFieldMetadataItem,
+      fieldMetadataItemByFieldMetadataItemId,
+      fieldDefinitionByFieldMetadataItemId,
+    ],
+  );
+
+  const viewInstanceContextValue = useMemo(
+    () => ({ instanceId: recordIndexId }),
+    [recordIndexId],
+  );
+
+  const commandMenuInstanceContextValue = useMemo(
+    () => ({ instanceId: getCommandMenuIdFromRecordIndexId(recordIndexId) }),
+    [recordIndexId],
+  );
+
   return (
     <>
-      <RecordIndexContextProvider
-        value={{
-          objectPermissionsByObjectMetadataId,
-          recordIndexId,
-          viewBarInstanceId: recordIndexId,
-          objectNamePlural: objectMetadataItem.namePlural,
-          objectNameSingular: objectMetadataItem.nameSingular,
-          objectMetadataItem,
-          onIndexRecordsLoaded: handleIndexRecordsLoaded,
-          indexIdentifierUrl,
-          recordFieldByFieldMetadataItemId,
-          labelIdentifierFieldMetadataItem,
-          fieldMetadataItemByFieldMetadataItemId,
-          fieldDefinitionByFieldMetadataItemId,
-        }}
-      >
-        <ViewComponentInstanceContext.Provider
-          value={{ instanceId: recordIndexId }}
-        >
+      <RecordIndexContextProvider value={recordIndexContextValue}>
+        <ViewComponentInstanceContext.Provider value={viewInstanceContextValue}>
           <RecordComponentInstanceContextsWrapper
             componentInstanceId={recordIndexId}
           >
             <CommandMenuComponentInstanceContext.Provider
-              value={{
-                instanceId: getCommandMenuIdFromRecordIndexId(recordIndexId),
-              }}
+              value={commandMenuInstanceContextValue}
             >
               <PageTitle title={objectMetadataItem.labelPlural} />
               <PageCardLayout

@@ -9,6 +9,7 @@ import { totalNumberOfRecordsToVirtualizeComponentState } from '@/object-record/
 import { useAtomComponentFamilyStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentFamilyStateValue';
 import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
 import { styled } from '@linaria/react';
+import { memo } from 'react';
 import { isDefined } from 'twenty-shared/utils';
 
 const StyledVirtualizedRowContainer = styled.div<{
@@ -19,13 +20,13 @@ const StyledVirtualizedRowContainer = styled.div<{
   top: ${({ pixelsFromTop }) => pixelsFromTop}px;
 `;
 
-type RecordTableRowVirtualizedContainerProps = {
+type RecordTableRowVirtualizedContainerUnmemoizedProps = {
   virtualIndex: number;
 };
 
-export const RecordTableRowVirtualizedContainer = ({
+const RecordTableRowVirtualizedContainerUnmemoized = ({
   virtualIndex,
-}: RecordTableRowVirtualizedContainerProps) => {
+}: RecordTableRowVirtualizedContainerUnmemoizedProps) => {
   const realIndexByVirtualIndex = useAtomComponentFamilyStateValue(
     realIndexByVirtualIndexComponentFamilyState,
     { virtualIndex },
@@ -62,3 +63,10 @@ export const RecordTableRowVirtualizedContainer = ({
     </StyledVirtualizedRowContainer>
   );
 };
+
+// Icehouse (perf): memoised so a re-render above the rows (view or loading
+// state flips) does not cascade into all 120 virtual rows. Rows read everything
+// from atoms and contexts; virtualIndex is a stable number.
+export const RecordTableRowVirtualizedContainer = memo(
+  RecordTableRowVirtualizedContainerUnmemoized,
+);

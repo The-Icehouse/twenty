@@ -12,7 +12,8 @@ import { hasUserSelectedAllRowsComponentState } from '@/object-record/record-tab
 import { type MoveFocusDirection } from '@/object-record/record-table/types/MoveFocusDirection';
 import { type TableCellPosition } from '@/object-record/record-table/types/TableCellPosition';
 import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
-import { type ReactNode } from 'react';
+import { type ReactNode, useMemo } from 'react';
+import { useLatestCallback } from '~/icehouse/perf/useLatestCallback';
 
 type RecordTableNoRecordGroupBodyContextProviderProps = {
   children?: ReactNode;
@@ -25,55 +26,68 @@ export const RecordTableNoRecordGroupBodyContextProvider = ({
 
   const { openTableCell } = useOpenRecordTableCell(recordTableId);
 
-  const handleOpenTableCell = (args: OpenTableCellArgs) => {
+  // Icehouse (perf): stable handlers + memoised value, so the loading-state
+  // flips that re-render this provider do not re-render every cell below.
+  const handleOpenTableCell = useLatestCallback((args: OpenTableCellArgs) => {
     openTableCell(args);
-  };
+  });
 
   const { moveFocus } = useRecordTableMoveFocusedCell(recordTableId);
 
-  const handleMoveFocus = (direction: MoveFocusDirection) => {
+  const handleMoveFocus = useLatestCallback((direction: MoveFocusDirection) => {
     moveFocus(direction);
-  };
+  });
 
   const { closeTableCellNoGroup } = useCloseRecordTableCellNoGroup();
 
-  const handleCloseTableCell = () => {
+  const handleCloseTableCell = useLatestCallback(() => {
     closeTableCellNoGroup();
-  };
+  });
 
   const { moveHoverToCurrentCell } = useMoveHoverToCurrentCell(recordTableId);
 
-  const handleMoveHoverToCurrentCell = (cellPosition: TableCellPosition) => {
-    moveHoverToCurrentCell(cellPosition);
-  };
+  const handleMoveHoverToCurrentCell = useLatestCallback(
+    (cellPosition: TableCellPosition) => {
+      moveHoverToCurrentCell(cellPosition);
+    },
+  );
 
   const { triggerCommandMenuDropdown } = useTriggerCommandMenuDropdown({
     recordTableId,
   });
 
-  const handleCommandMenuDropdown = (
-    event: React.MouseEvent,
-    recordId: string,
-  ) => {
-    triggerCommandMenuDropdown(event, recordId);
-  };
+  const handleCommandMenuDropdown = useLatestCallback(
+    (event: React.MouseEvent, recordId: string) => {
+      triggerCommandMenuDropdown(event, recordId);
+    },
+  );
 
   const hasUserSelectedAllRows = useAtomComponentStateValue(
     hasUserSelectedAllRowsComponentState,
     recordTableId,
   );
 
+  const recordTableBodyContextValue = useMemo(
+    () => ({
+      onOpenTableCell: handleOpenTableCell,
+      onMoveFocus: handleMoveFocus,
+      onCloseTableCell: handleCloseTableCell,
+      onMoveHoverToCurrentCell: handleMoveHoverToCurrentCell,
+      onCommandMenuDropdownOpened: handleCommandMenuDropdown,
+      hasUserSelectedAllRows,
+    }),
+    [
+      handleOpenTableCell,
+      handleMoveFocus,
+      handleCloseTableCell,
+      handleMoveHoverToCurrentCell,
+      handleCommandMenuDropdown,
+      hasUserSelectedAllRows,
+    ],
+  );
+
   return (
-    <RecordTableBodyContextProvider
-      value={{
-        onOpenTableCell: handleOpenTableCell,
-        onMoveFocus: handleMoveFocus,
-        onCloseTableCell: handleCloseTableCell,
-        onMoveHoverToCurrentCell: handleMoveHoverToCurrentCell,
-        onCommandMenuDropdownOpened: handleCommandMenuDropdown,
-        hasUserSelectedAllRows,
-      }}
-    >
+    <RecordTableBodyContextProvider value={recordTableBodyContextValue}>
       {children}
     </RecordTableBodyContextProvider>
   );

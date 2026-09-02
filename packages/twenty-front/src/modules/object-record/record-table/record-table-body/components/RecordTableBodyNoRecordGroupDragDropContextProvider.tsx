@@ -1,6 +1,6 @@
 import { DragDropProvider, DragOverlay } from '@dnd-kit/react';
 import { useStore } from 'jotai';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { isDefined } from 'twenty-shared/utils';
 
 import { useEndRecordDrag } from '@/object-record/record-drag/hooks/useEndRecordDrag';
@@ -149,10 +149,15 @@ export const RecordTableBodyNoRecordGroupDragDropContextProvider = ({
     }
   };
 
+  // Icehouse (perf): memoised so the 120 drop targets below only re-render
+  // during a drag, not on every loading-state flip of the body.
+  const dragDropItemDndContextValue = useMemo(
+    () => ({ activeDropTargetIndex, activeDroppableId }),
+    [activeDropTargetIndex, activeDroppableId],
+  );
+
   return (
-    <DragDropItemDndContext.Provider
-      value={{ activeDropTargetIndex, activeDroppableId }}
-    >
+    <DragDropItemDndContext.Provider value={dragDropItemDndContextValue}>
       <DragDropProvider<DragDropItemData>
         sensors={DND_KIT_SENSORS}
         plugins={DND_KIT_PROVIDER_PLUGINS_WITHOUT_DROP_ANIMATION}
